@@ -887,6 +887,7 @@
       let ytReady = false;
       let loaderHidden = false;
       let fallbackSynthesizerActive = false;
+      let watchdogTimer = null;
 
       // 1. Web Audio API High-Fidelity Synthesizer Fallback Engine
       let audioCtx = null, masterGain = null, oscillators = [];
@@ -916,10 +917,11 @@
           conv.connect(convGain);
           convGain.connect(audioCtx.destination);
 
-          function playSynthNote(freq, start, dur, vol = 0.06) {
+          // Custom Plucked Instrument Note Synthesizer (Triangle + quick decay)
+          function playSynthNote(freq, start, dur, vol = 0.05) {
             const osc = audioCtx.createOscillator();
             const g = audioCtx.createGain();
-            osc.type = 'sine';
+            osc.type = 'triangle'; // Warm acoustic plucked instrument timbre
             osc.frequency.value = freq;
             g.gain.setValueAtTime(0, start);
             g.gain.linearRampToValueAtTime(vol, start + 0.08);
@@ -927,7 +929,7 @@
             osc.connect(g);
             g.connect(masterGain);
             osc.start(start);
-            osc.stop(start + dur + 0.1);
+            osc.stop(start + dur + 0.15);
             oscillators.push(osc);
           }
 
@@ -940,12 +942,12 @@
             melody.forEach((semi, i) => {
               const f = baseFreq * Math.pow(2, semi / 12);
               playSynthNote(f, t + i * beat, beat * 0.85);
-              playSynthNote(f * 2, t + i * beat + 0.01, beat * 0.5, 0.025);
+              playSynthNote(f * 2, t + i * beat + 0.01, beat * 0.5, 0.02);
             });
             [[0, 4, 7], [2, 5, 9], [4, 7, 11]].forEach(([a, b, c], ci) => {
               [a, b, c].forEach(s => {
                 const f = baseFreq * Math.pow(2, s / 12) * 0.5;
-                playSynthNote(f, t + ci * beat * 7, beat * 7, 0.025);
+                playSynthNote(f, t + ci * beat * 7, beat * 7, 0.02);
               });
             });
             t += melody.length * beat;
@@ -1002,7 +1004,6 @@
 
       function onPlayerReady(event) {
         ytReady = true;
-        // Launch automated player checks if the loading screen is gone
         if (loaderHidden) {
           attemptAutoplay();
         }
@@ -1015,12 +1016,15 @@
       }
 
       function onPlayerError(event) {
-        console.warn("YouTube Player failed to stream. Activating local Web Audio Synthesizer Fallback.");
+        console.warn("YouTube Player encountered an error. Seamlessly switching to local Audio Synthesizer.");
         activateFallbackEngine();
       }
 
       function activateFallbackEngine() {
         if (!fallbackSynthesizerActive) {
+          if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
+            try { ytPlayer.pauseVideo(); } catch(e){}
+          }
           startSynthesizer();
         }
       }
@@ -1040,9 +1044,10 @@
           playing = true;
           startNoteTrail();
           
-          // Fallback if player doesn't start playing within 1s (blocked inside sandbox frames)
+          // Fallback watchdog: If unmuted playback is blocked or fails inside sandboxed frames, trigger synthesizer
           setTimeout(() => {
-            if (ytPlayer.getPlayerState() !== 1 && !playing) {
+            if (ytPlayer.getPlayerState() !== 1) {
+              console.warn("YouTube failed to unmute. Initiating native Web Audio Engine.");
               activateFallbackEngine();
             }
           }, 1000);
@@ -1051,13 +1056,21 @@
         }
       }
 
-      // ── AUTOPLAY BYPASS SYSTEM ──
+      // ── AUTOPLAY BYPASS SYSTEM WITH AUTOMATED FALLBACKS ──
       function attemptAutoplay() {
         const startOnFirstInteraction = () => {
           startPlayback();
           document.removeEventListener('click', startOnFirstInteraction);
           document.removeEventListener('touchstart', startOnFirstInteraction);
         };
+
+        // Fallback Watchdog: If YouTube has loaded but has not transitioned to "PLAYING" within 1.5 seconds, force switch to synthesizer
+        watchdogTimer = setTimeout(() => {
+          if (!playing) {
+            console.warn("YouTube autoplay watchdog timeout. Activating Web Audio Synthesizer.");
+            activateFallbackEngine();
+          }
+        }, 1500);
 
         if (!ytReady || !ytPlayer) {
           // If YT is not loaded/blocked by network, immediately prepare first interaction fallback for synth
@@ -1074,6 +1087,7 @@
           setTimeout(() => {
             if (ytPlayer.getPlayerState() === 1) { // Running unmuted successfully
               playing = true;
+              clearTimeout(watchdogTimer);
               startNoteTrail();
             } else {
               // Programmatic unmuted playback blocked. Play muted, then listen for interaction to unmute.
