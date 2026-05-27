@@ -990,30 +990,6 @@
             }
         }
 
-        #tap-hint {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 250;
-            background: rgba(2, 18, 28, 0.9);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 255, 200, 0.3);
-            border-radius: 30px;
-            padding: 10px 22px;
-            font-size: 0.85rem;
-            color: rgba(0, 255, 200, 0.9);
-            letter-spacing: 0.1em;
-            font-family: 'Cormorant Garamond', serif;
-            font-style: italic;
-            animation: fadeSlide 0.6s ease-out both;
-            pointer-events: none;
-            transition: opacity 0.5s ease;
-        }
-        #tap-hint.gone {
-            opacity: 0;
-        }
-
         #mute-toast {
             position: fixed;
             bottom: 80px;
@@ -1046,7 +1022,6 @@
         <div class="loader-bar"><div class="loader-fill"></div></div>
     </div>
 
-    <div id="tap-hint">✨ Tap anywhere for fireworks (🌙 Moon toggles music)</div>
     <div id="mute-toast">🔊 Music On</div>
 
     <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" aria-hidden="true">
@@ -1187,7 +1162,6 @@
 
             // ── LOADER ──
             const loader = document.getElementById('loader');
-            const tapHint = document.getElementById('tap-hint');
             const muteToast = document.getElementById('mute-toast');
 
             window.addEventListener('load', () => {
@@ -1204,7 +1178,6 @@
             let isMuted = false;
             let toastTimeout = null;
 
-            // YouTube API callback
             window.onYouTubeIframeAPIReady = function() {
                 const originUrl = window.location.origin === 'null' ? '*' : window.location.origin;
                 ytPlayer = new YT.Player('ytplayer', {
@@ -1230,7 +1203,6 @@
                 });
             };
 
-            // Load YouTube IFrame API
             const tag = document.createElement('script');
             tag.src = "https://www.youtube.com/iframe_api";
             const firstScriptTag = document.getElementsByTagName('script')[0];
@@ -1244,7 +1216,7 @@
             }
 
             function onPlayerStateChange(event) {
-                if (event.data === 0) { // ended
+                if (event.data === 0) {
                     ytPlayer.playVideo();
                 }
             }
@@ -1266,30 +1238,23 @@
             }
 
             function attemptAutoplay() {
-                // Try muted autoplay first
                 if (ytReady && ytPlayer) {
                     try {
                         ytPlayer.playVideo();
                     } catch (e) {}
                 }
-                // Unmute on first user interaction
                 const unmuteOnInteraction = () => {
                     if (!unmuted) {
                         startPlayback();
-                        tapHint.classList.add('gone');
-                        document.removeEventListener('click', unmuteOnInteraction);
-                        document.removeEventListener('touchstart', unmuteOnInteraction);
                     }
                 };
                 document.addEventListener('click', unmuteOnInteraction);
                 document.addEventListener('touchstart', unmuteOnInteraction, { passive: true });
             }
 
-            // Moon toggle mute
             function toggleMute() {
                 if (!unmuted) {
                     startPlayback();
-                    tapHint.classList.add('gone');
                 }
                 isMuted = !isMuted;
                 showMuteToast(isMuted ? '🔇 Music Off' : '🔊 Music On');
@@ -1492,7 +1457,6 @@
                 skCtx.globalAlpha = 1;
             }
 
-            // ── FIREWORKS & HEARTS ──
             const shCanvas = document.getElementById('shoots');
             const shCtx = shCanvas.getContext('2d');
             let particles = [];
@@ -1582,7 +1546,6 @@
                 requestAnimationFrame(loop);
             })(0);
 
-            // Dust & glitter
             const pfield = document.getElementById('pfield');
             for(let i=0;i<32;i++) {
                 const d=document.createElement('div'); d.className='dust';
@@ -1597,7 +1560,6 @@
                 glitter.appendChild(g);
             }
 
-            // Floaters
             const floatEl = document.getElementById('floaters');
             const POOL = ['🐄','🐐','🏮','🪔','💖','💕','🌙','✨','🌸','💝','🦋','🌺','💫','🎐'];
             const WEIGHTS = [3,3,2,2,3,2,1,2,2,1,1,1,2,1];
@@ -1613,7 +1575,6 @@
             for(let i=0;i<14;i++) setTimeout(spawnF, i*900);
             setInterval(spawnF, 1600);
 
-            // Floating love hearts
             const loveContainer = document.createElement('div');
             loveContainer.style.cssText = 'position:fixed; inset:0; pointer-events:none; z-index:6; overflow:hidden;';
             document.body.appendChild(loveContainer);
@@ -1633,7 +1594,6 @@
             }
             setInterval(spawnLoveHeart, 700);
 
-            // Click/touch fireworks
             function triggerBurst(x,y) {
                 ['','r2'].forEach(cls=>{
                     const r=document.createElement('div'); r.className='ripple-el '+cls;
@@ -1647,6 +1607,7 @@
                     particles.push(new FireworkParticle(x,y,col,isHeart));
                 }
             }
+
             document.addEventListener('click', e => {
                 if(e.target.closest('.moon-wrap')) return;
                 triggerBurst(e.clientX, e.clientY);
