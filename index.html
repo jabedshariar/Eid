@@ -17,7 +17,7 @@
       --lavender:#c084fc;
       --deep:    #020b14;
       --mid:     #041520;
-      --card-bg: rgba(2, 18, 28, 0.78);
+      --card-bg: rgba(2, 18, 28, 0.74);
       --border:  rgba(0, 212, 170, 0.35);
       --glow-color: rgba(0, 255, 200, 0.5);
     }
@@ -218,6 +218,49 @@
       .lantern svg { width: 45px; height: 90px; }
     }
 
+    /* ─ CENTRAL LOVE BACKDROP HEART ─ */
+    .heart-backdrop {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: clamp(280px, 75vw, 480px);
+      height: clamp(280px, 75vw, 480px);
+      z-index: 5;
+      pointer-events: none;
+      filter: blur(8px) drop-shadow(0 0 35px rgba(255, 107, 157, 0.45));
+      animation: centralHeartBeat 4s ease-in-out infinite;
+    }
+
+    @keyframes centralHeartBeat {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.22; }
+      30% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.42; filter: blur(6px) drop-shadow(0 0 45px rgba(255, 107, 157, 0.7)); }
+      45% { transform: translate(-50%, -50%) scale(1.08); opacity: 0.32; }
+      60% { transform: translate(-50%, -50%) scale(1.22); opacity: 0.48; filter: blur(4px) drop-shadow(0 0 55px rgba(255, 107, 157, 0.8)); }
+    }
+
+    .floating-love-heart {
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    @keyframes floatLoveHeart {
+      0% {
+        transform: translate(0, 0) scale(0.3);
+        opacity: 0;
+      }
+      15% {
+        opacity: 0.85;
+      }
+      80% {
+        opacity: 0.6;
+      }
+      100% {
+        transform: translate(var(--hx), var(--hy)) scale(1.2) rotate(var(--hr));
+        opacity: 0;
+      }
+    }
+
     /* ─ MOON ─ */
     .moon-wrap {
       position: relative;
@@ -361,66 +404,45 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* ─ ROMANTIC BEATING CARD ─ */
+    /* ─ ROMANTIC BEATING CARD (HEART-SHAPED VIA CLIP PATH) ─ */
     .card {
       position: relative;
       background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: clamp(1.3rem, 5.5vw, 2.4rem) clamp(1.5rem, 6.5vw, 3rem);
-      backdrop-filter: blur(22px);
-      -webkit-backdrop-filter: blur(22px);
+      clip-path: url(#heartClip);
+      -webkit-clip-path: url(#heartClip);
+      border: none;
+      border-radius: 0;
       animation: cardHeartBeat 4s ease-in-out infinite;
       overflow: visible;
-      max-width: min(95vw, 460px);
+      max-width: min(95vw, 470px);
       width: 100%;
-      box-shadow:
-        0 0 0 1px rgba(0, 212, 170, 0.12),
-        0 0 40px rgba(0, 180, 140, 0.15),
-        0 0 80px rgba(0, 140, 110, 0.08),
-        inset 0 0 50px rgba(0, 212, 170, 0.04);
+      aspect-ratio: 1 / 1.05;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: none; /* Shadow handled by background backdrop filter & SVG elements */
     }
 
-    /* Sweep border */
-    .card::before {
-      content: '';
+    .card-heart-border {
       position: absolute;
-      inset: -1px;
-      border-radius: 25px;
-      background: conic-gradient(
-        from var(--a, 0deg),
-        transparent 0%,
-        rgba(0, 212, 170, 0.5) 12%,
-        rgba(0, 255, 200, 0.8) 22%,
-        rgba(127, 255, 212, 0.4) 30%,
-        transparent 42%,
-        transparent 58%,
-        rgba(255, 107, 157, 0.3) 68%,
-        rgba(192, 132, 252, 0.4) 78%,
-        transparent 88%
-      );
-      animation: rotateConic 5s linear infinite;
-      mask: line-gradient(#fff 0 0) content-box, line-gradient(#fff 0 0);
-      mask-composite: exclude;
-      -webkit-mask-composite: destination-out;
-      padding: 1px;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: var(--teal);
+      stroke-width: 2px;
+      filter: drop-shadow(0 0 10px rgba(0, 255, 200, 0.8)) drop-shadow(0 0 20px rgba(255, 107, 157, 0.4));
       pointer-events: none;
+      z-index: 2;
+      animation: borderPulse 4s ease-in-out infinite;
     }
 
-    @keyframes rotateConic { to { --a: 360deg; } }
-    @property --a { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
-
-    /* inner glow ring */
-    .card::after {
-      content: '';
-      position: absolute;
-      inset: 8px;
-      border-radius: 18px;
-      border: 1px solid rgba(0, 212, 170, 0.07);
-      pointer-events: none;
+    @keyframes borderPulse {
+      0%, 100% { stroke: var(--teal); filter: drop-shadow(0 0 8px rgba(0, 255, 200, 0.6)); }
+      50% { stroke: var(--rose); filter: drop-shadow(0 0 16px rgba(255, 107, 157, 0.9)); }
     }
 
-    /* Jewels */
+    /* Jewels on Heart-Shape bounds */
     .jewel {
       position: absolute;
       width: 9px;
@@ -429,12 +451,13 @@
       background: radial-gradient(circle, #00ffd0, #00d4aa);
       box-shadow: 0 0 12px #00ffd0cc, 0 0 24px #00d4aa55;
       animation: jewPulse 2.8s ease-in-out infinite;
+      z-index: 10;
     }
 
-    .jewel.tl { top: -4px; left: -4px; animation-delay: 0s; }
-    .jewel.tr { top: -4px; right: -4px; animation-delay: 0.7s; }
-    .jewel.bl { bottom: -4px; left: -4px; animation-delay: 1.4s; }
-    .jewel.br { bottom: -4px; right: -4px; animation-delay: 2.1s; }
+    .jewel.tl { top: 22%; left: 8%; animation-delay: 0s; }
+    .jewel.tr { top: 22%; right: 8%; animation-delay: 0.7s; }
+    .jewel.bl { bottom: 25%; left: 16%; animation-delay: 1.4s; }
+    .jewel.br { bottom: 25%; right: 16%; animation-delay: 2.1s; }
 
     @keyframes jewPulse {
       0%, 100% { box-shadow: 0 0 10px #00ffd0aa; transform: scale(1); }
@@ -443,26 +466,39 @@
 
     @keyframes cardHeartBeat {
       0%, 100% { transform: translateY(0) scale(1); }
-      30% { transform: translateY(-4px) scale(1.015); box-shadow: 0 14px 60px rgba(255, 107, 157, 0.32), 0 0 80px rgba(0, 212, 170, 0.15); }
+      30% { transform: translateY(-4px) scale(1.015); filter: drop-shadow(0 14px 60px rgba(255, 107, 157, 0.35)); }
       45% { transform: translateY(-5px) scale(1.008); }
-      60% { transform: translateY(-3px) scale(1.02); box-shadow: 0 14px 60px rgba(255, 107, 157, 0.45), 0 0 90px rgba(0, 212, 170, 0.22); }
+      60% { transform: translateY(-3px) scale(1.02); filter: drop-shadow(0 14px 60px rgba(255, 107, 157, 0.45)); }
     }
 
-    /* ─ CARD INNER ─ */
-    .card-inner { position: relative; z-index: 1; }
+    /* ─ CARD INNER (STRICTLY CONFINED TO COZY SAFE AREA OF THE HEART SHAPE) ─ */
+    .card-inner { 
+      position: relative; 
+      z-index: 1; 
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      width: 74%; /* Confined strictly within horizontal heart walls */
+      height: 56%; /* Kept away from the top cleft and bottom sharp tip */
+      margin-top: 12%; /* Shifts content downward to perfectly clear the deep top dip (y=0.25) */
+      padding: 0.5rem;
+    }
+    
     .card-label {
       font-style: italic;
-      font-size: clamp(0.88rem, 2.1vw, 1.12rem);
-      color: rgba(0, 212, 170, 0.7);
+      font-size: clamp(0.7rem, 2vw, 0.95rem);
+      color: rgba(0, 212, 170, 0.75);
       letter-spacing: 0.08em;
-      margin-bottom: 0.55rem;
+      margin-bottom: 0.25rem;
       animation: fadeSlide 1s ease-out 0.3s both;
     }
 
     .name {
       font-family: 'Cinzel Decorative', serif;
       font-weight: 700;
-      font-size: clamp(1.5rem, 6.5vw, 3.2rem);
+      font-size: clamp(1.2rem, 5.2vw, 2.3rem);
       background: linear-gradient(130deg, #ff6b9d 0%, #ffb3cc 25%, #ff8fb3 50%, #ffd6e8 72%, #ff6b9d 100%);
       background-size: 200% auto;
       -webkit-background-clip: text;
@@ -472,7 +508,7 @@
       filter: drop-shadow(0 0 18px rgba(255, 107, 157, 0.7));
       letter-spacing: 0.04em;
       line-height: 1.2;
-      margin-bottom: 0.7rem;
+      margin-bottom: 0.3rem;
       word-break: break-word;
     }
 
@@ -485,7 +521,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      margin: 0.6rem 0;
+      margin: 0.4rem 0;
       animation: fadeSlide 1s ease-out 0.65s both;
     }
 
@@ -507,9 +543,9 @@
     }
 
     .blessing {
-      font-size: clamp(0.92rem, 2.3vw, 1.08rem);
+      font-size: clamp(0.72rem, 2.1vw, 0.92rem);
       color: rgba(200, 240, 235, 0.85);
-      line-height: 1.8;
+      line-height: 1.65;
       letter-spacing: 0.03em;
       animation: fadeSlide 1s ease-out 0.8s both;
     }
@@ -684,6 +720,21 @@
     <div class="loader-bar"><div class="loader-fill"></div></div>
   </div>
 
+  <!-- Global SVG Assets & Clip-Paths Registry -->
+  <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" aria-hidden="true">
+    <defs>
+      <!-- Perfect Object Bounding Box Heart Shape ClipPath -->
+      <clipPath id="heartClip" clipPathUnits="objectBoundingBox">
+        <path d="M 0.5, 0.25 C 0.5, 0.25, 0.8, 0, 0.95, 0.3 C 1.1, 0.65, 0.7, 0.85, 0.5, 1 C 0.3, 0.85, -0.1, 0.65, 0.05, 0.3 C 0.2, 0, 0.5, 0.25, 0.5, 0.25 Z" />
+      </clipPath>
+      <linearGradient id="loveHeartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#ffb3cc" />
+        <stop offset="50%" stop-color="#ff8fb3" />
+        <stop offset="100%" stop-color="#ff6b9d" />
+      </linearGradient>
+    </defs>
+  </svg>
+
   <!-- Hidden YouTube Player Container -->
   <div id="ytplayer"></div>
 
@@ -700,6 +751,22 @@
   <div class="pfield" id="pfield" aria-hidden="true"></div>
   <div class="glitter" id="glitter" aria-hidden="true"></div>
   <div class="floaters" id="floaters" aria-hidden="true"></div>
+
+  <!-- Central Beating Heart Backdrop -->
+  <div class="heart-backdrop" aria-hidden="true">
+    <svg viewBox="0 0 32 29.6" width="100%" height="100%">
+      <path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2
+        c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z" fill="url(#centralHeartGrad)"/>
+      <defs>
+        <radialGradient id="centralHeartGrad" cx="50%" cy="40%" r="50%" fx="30%" fy="30%">
+          <stop offset="0%" stop-color="#ffd6e8" />
+          <stop offset="30%" stop-color="#ff8fb3" />
+          <stop offset="70%" stop-color="#ff6b9d" />
+          <stop offset="100%" stop-color="#020b14" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+    </svg>
+  </div>
 
   <!-- MAIN -->
   <main class="wrap" role="main">
@@ -766,22 +833,30 @@
     <h1 class="eid-title">🌙 Eid Ul Adha Mubarak 🌙</h1>
     <p class="eid-tagline">✦ May Allah's blessings shower upon you always ✦</p>
 
-    <div class="card" id="card">
-      <div class="jewel tl"></div><div class="jewel tr"></div>
-      <div class="jewel bl"></div><div class="jewel br"></div>
-      <div class="card-inner">
-        <p class="card-label">💫 With all my heart &amp; duas, for my dearest</p>
-        <h2 class="name">Nusrat Jahan Mim</h2>
-        <div class="divider"><div class="dline"></div><span class="dgem">✦</span><div class="dline"></div></div>
-        <p class="blessing">
-          The most <span class="hi-rose">adorable, pretty &amp; radiant</span> soul —<br>
-          my sweetest <span class="hi-rose">cutu pookie</span> <span class="hb">💖</span><br><br>
-          May this Eid fill every corner of your heart<br>
-          with <span class="hi-teal">joy, warmth &amp; infinite peace</span>.<br>
-          May every dua you whisper under this moon<br>
-          be heard &amp; answered. <span class="hb">🌸</span><br><br>
-          <em style="color:rgba(0,212,170,0.6);font-size:0.95em;">You are my favourite blessing.</em>
-        </p>
+    <!-- HEART CARD CONTAINER -->
+    <div style="position: relative; width: 100%; max-width: 470px; display: flex; justify-content: center; align-items: center;">
+      <!-- Glowing responsive SVG heart border overlay matching the exact clipPath coordinates -->
+      <svg class="card-heart-border" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M 50, 25 C 50, 25, 80, 0, 95, 30 C 110, 65, 70, 85, 50, 100 C 30, 85, -10, 65, 5, 30 C 20, 0, 50, 25, 50, 25 Z" vector-effect="non-scaling-stroke" />
+      </svg>
+
+      <div class="card" id="card">
+        <div class="jewel tl"></div><div class="jewel tr"></div>
+        <div class="jewel bl"></div><div class="jewel br"></div>
+        <div class="card-inner">
+          <p class="card-label">💫 With all my heart &amp; duas, for my dearest</p>
+          <h2 class="name">Nusrat Jahan Mim</h2>
+          <div class="divider"><div class="dline"></div><span class="dgem">✦</span><div class="dline"></div></div>
+          <p class="blessing">
+            The most <span class="hi-rose">adorable, pretty &amp; radiant</span> soul —<br>
+            my sweetest <span class="hi-rose">cutu pookie</span> <span class="hb">💖</span><br><br>
+            May this Eid fill every corner of your heart<br>
+            with <span class="hi-teal">joy, warmth &amp; infinite peace</span>.<br>
+            May every dua you whisper under this moon<br>
+            be heard &amp; answered. <span class="hb">🌸</span><br><br>
+            <em style="color:rgba(0,212,170,0.6);font-size:0.95em;">You are my favourite blessing.</em>
+          </p>
+        </div>
       </div>
     </div>
 
@@ -806,20 +881,101 @@
         }, 2200);
       });
 
-      // ── MUSIC (YouTube IFrame API — background track) ──
+      // ── MUSIC PLAYBACK CONTROLLER ──
       let playing = false;
       let ytPlayer = null;
       let ytReady = false;
       let loaderHidden = false;
+      let fallbackSynthesizerActive = false;
 
-      // 1. Define the ready callback FIRST to avoid API race conditions
+      // 1. Web Audio API High-Fidelity Synthesizer Fallback Engine
+      let audioCtx = null, masterGain = null, oscillators = [];
+      const notes = [261.63, 293.66, 329.63, 349.23, 392, 440, 493.88];
+
+      function buildSynthMusic() {
+        try {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          masterGain = audioCtx.createGain();
+          masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
+          masterGain.connect(audioCtx.destination);
+
+          // Simulated studio reverb
+          const conv = audioCtx.createConvolver();
+          const len = audioCtx.sampleRate * 3;
+          const buf = audioCtx.createBuffer(2, len, audioCtx.sampleRate);
+          for (let c = 0; c < 2; c++) {
+            const d = buf.getChannelData(c);
+            for (let i = 0; i < len; i++) {
+              d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
+            }
+          }
+          conv.buffer = buf;
+          const convGain = audioCtx.createGain();
+          convGain.gain.value = 0.35;
+          masterGain.connect(conv);
+          conv.connect(convGain);
+          convGain.connect(audioCtx.destination);
+
+          function playSynthNote(freq, start, dur, vol = 0.06) {
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            g.gain.setValueAtTime(0, start);
+            g.gain.linearRampToValueAtTime(vol, start + 0.08);
+            g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+            osc.connect(g);
+            g.connect(masterGain);
+            osc.start(start);
+            osc.stop(start + dur + 0.1);
+            oscillators.push(osc);
+          }
+
+          const melody = [0, 2, 4, 5, 4, 2, 0, 2, 4, 5, 7, 5, 4, 2, 0, 4, 7, 4, 0, -3, 0];
+          const baseFreq = 220;
+          let t = audioCtx.currentTime + 0.5;
+          const beat = 0.52;
+
+          function scheduleLoop() {
+            melody.forEach((semi, i) => {
+              const f = baseFreq * Math.pow(2, semi / 12);
+              playSynthNote(f, t + i * beat, beat * 0.85);
+              playSynthNote(f * 2, t + i * beat + 0.01, beat * 0.5, 0.025);
+            });
+            [[0, 4, 7], [2, 5, 9], [4, 7, 11]].forEach(([a, b, c], ci) => {
+              [a, b, c].forEach(s => {
+                const f = baseFreq * Math.pow(2, s / 12) * 0.5;
+                playSynthNote(f, t + ci * beat * 7, beat * 7, 0.025);
+              });
+            });
+            t += melody.length * beat;
+          }
+
+          scheduleLoop();
+          setInterval(scheduleLoop, melody.length * beat * 1000 - 100);
+        } catch (err) {
+          console.error("Synthesizer failed to initialize:", err);
+        }
+      }
+
+      function startSynthesizer() {
+        if (!audioCtx) buildSynthMusic();
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
+        masterGain.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 1.2);
+        playing = true;
+        fallbackSynthesizerActive = true;
+        startNoteTrail();
+      }
+
+      // 2. Initialize YouTube IFrame Player API
       window.onYouTubeIframeAPIReady = function() {
         const originUrl = window.location.origin === 'null' ? '*' : window.location.origin;
         ytPlayer = new YT.Player('ytplayer', {
           videoId: 'pX6yiyrpH1U',
           playerVars: {
             'autoplay': 1,
-            'mute': 1,             // Start muted to completely bypass browser autoplay restrictions
+            'mute': 1,             
             'controls': 0,
             'loop': 1,
             'playlist': 'pX6yiyrpH1U',
@@ -832,12 +988,13 @@
           },
           events: {
             'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
+            'onStateChange': onPlayerStateChange,
+            'onError': onPlayerError
           }
         });
       };
 
-      // 2. Load YouTube IFrame Player API dynamically after callback is registered
+      // 3. Load YouTube IFrame Player API dynamically after callback is registered
       const tag = document.createElement('script');
       tag.src = "https://www.youtube.com/iframe_api";
       const firstScriptTag = document.getElementsByTagName('script')[0];
@@ -845,54 +1002,81 @@
 
       function onPlayerReady(event) {
         ytReady = true;
+        // Launch automated player checks if the loading screen is gone
         if (loaderHidden) {
           attemptAutoplay();
         }
       }
 
       function onPlayerStateChange(event) {
-        // Enforce fallback loop if YouTube playlist loop fails
         if (event.data === 0) { // YT.PlayerState.ENDED
           ytPlayer.playVideo();
         }
       }
 
+      function onPlayerError(event) {
+        console.warn("YouTube Player failed to stream. Activating local Web Audio Synthesizer Fallback.");
+        activateFallbackEngine();
+      }
+
+      function activateFallbackEngine() {
+        if (!fallbackSynthesizerActive) {
+          startSynthesizer();
+        }
+      }
+
       function startPlayback() {
-        if (!ytReady || !ytPlayer || playing) return;
+        if (fallbackSynthesizerActive) return;
+
+        if (!ytReady || !ytPlayer) {
+          activateFallbackEngine();
+          return;
+        }
+
         try {
           ytPlayer.unMute();
           ytPlayer.setVolume(100);
           ytPlayer.playVideo();
           playing = true;
           startNoteTrail();
+          
+          // Fallback if player doesn't start playing within 1s (blocked inside sandbox frames)
+          setTimeout(() => {
+            if (ytPlayer.getPlayerState() !== 1 && !playing) {
+              activateFallbackEngine();
+            }
+          }, 1000);
         } catch(e) {
-          console.error("Playback start block:", e);
+          activateFallbackEngine();
         }
       }
 
       // ── AUTOPLAY BYPASS SYSTEM ──
       function attemptAutoplay() {
-        if (!ytReady || !ytPlayer) return;
-
         const startOnFirstInteraction = () => {
           startPlayback();
           document.removeEventListener('click', startOnFirstInteraction);
           document.removeEventListener('touchstart', startOnFirstInteraction);
         };
 
-        // Try unmuting immediately in case permission is already unlocked
+        if (!ytReady || !ytPlayer) {
+          // If YT is not loaded/blocked by network, immediately prepare first interaction fallback for synth
+          document.addEventListener('click', startOnFirstInteraction);
+          document.addEventListener('touchstart', startOnFirstInteraction, { passive: true });
+          return;
+        }
+
         try {
           ytPlayer.unMute();
           ytPlayer.setVolume(100);
           ytPlayer.playVideo();
           
           setTimeout(() => {
-            // Check if player is successfully running unmuted
-            if (ytPlayer.getPlayerState() === 1) { // 1 = YT.PlayerState.PLAYING
+            if (ytPlayer.getPlayerState() === 1) { // Running unmuted successfully
               playing = true;
               startNoteTrail();
             } else {
-              // Blocked: revert to muted playback and bind interaction listener
+              // Programmatic unmuted playback blocked. Play muted, then listen for interaction to unmute.
               ytPlayer.mute();
               ytPlayer.playVideo();
               document.addEventListener('click', startOnFirstInteraction);
@@ -997,6 +1181,7 @@
         document.getElementById('shoots').width = W;
         document.getElementById('shoots').height = H;
         buildMandalas();
+        setupHeartTracers();
       }
 
       function buildMandalas() {
@@ -1021,6 +1206,63 @@
         }));
       }
 
+      // ── SYMMETRIC CARDIOID HEART TRACER ──
+      let symmetricTracers = [];
+
+      class SymmetricHeartTracer {
+        constructor(cx, cy, size) {
+          this.cx = cx;
+          this.cy = cy;
+          this.size = size;
+          this.progress = 0; // 0 to 1
+          this.speed = 0.006 + Math.random() * 0.004;
+          this.color = Math.random() < 0.5 ? '#00ffd0' : '#ff6b9d';
+        }
+
+        update() {
+          this.progress += this.speed;
+          if (this.progress > 1) {
+            this.progress = 0;
+            this.color = Math.random() < 0.5 ? '#00ffd0' : '#ff6b9d';
+          }
+
+          // Mathematical Cardioid trace (0 to 1 maps to symmetric trajectories starting at bottom tip)
+          // Bottom Tip corresponds to t = Math.PI, meeting Cusp at t = 0 / 2*Math.PI
+          const tLeft = Math.PI - this.progress * Math.PI;
+          const tRight = Math.PI + this.progress * Math.PI;
+
+          const getCardioidCoord = (t) => {
+            const x = 16 * Math.pow(Math.sin(t), 3);
+            const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+            return {
+              x: this.cx + x * this.size,
+              y: this.cy + y * this.size
+            };
+          };
+
+          const pLeft = getCardioidCoord(tLeft);
+          const pRight = getCardioidCoord(tRight);
+
+          // Spawn symmetric starry trail particles along the heart's curve
+          particles.push(new FireworkParticle(pLeft.x, pLeft.y, this.color, false));
+          particles.push(new FireworkParticle(pRight.x, pRight.y, this.color, false));
+
+          // Occasionally spark a floating heart trail
+          if (Math.random() < 0.12) {
+            particles.push(new FireworkParticle(pLeft.x, pLeft.y, '#ff8fb3', true));
+            particles.push(new FireworkParticle(pRight.x, pRight.y, '#ff8fb3', true));
+          }
+        }
+      }
+
+      function setupHeartTracers() {
+        const tracerSize = Math.min(W * 0.024, 11);
+        symmetricTracers = [
+          new SymmetricHeartTracer(W * 0.5, H * 0.5, tracerSize),
+          new SymmetricHeartTracer(W * 0.5, H * 0.5, tracerSize * 0.85)
+        ];
+      }
+
       resize();
       buildStars();
 
@@ -1031,6 +1273,11 @@
         mandalas.forEach(m => {
           m.update();
           m.draw(skCtx);
+        });
+
+        // Run symmetric heart path tracer animations behind the card
+        symmetricTracers.forEach(tr => {
+          tr.update();
         });
 
         // Twinkling background stars
@@ -1093,7 +1340,7 @@
           this.alpha = 1;
           this.decay = Math.random() * 0.012 + 0.007;
           this.size = isHeart ? Math.random() * 7 + 5 : Math.random() * 3 + 1.5;
-          this.gravity = isHeart ? -0.015 : 0.05; // Hearts float slightly upwards
+          this.gravity = isHeart ? -0.015 : 0.05; 
           this.friction = 0.98;
         }
 
@@ -1118,7 +1365,6 @@
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
             ctx.fill();
-            // Star sparkles for golden elements
             if (this.size > 2.2 && Math.random() < 0.15) {
               ctx.fillStyle = '#fff';
               ctx.fillRect(this.x - this.size * 1.5, this.y - 0.5, this.size * 3, 1);
@@ -1133,7 +1379,7 @@
         constructor() {
           this.x = Math.random() * W * 0.8 + W * 0.1;
           this.y = H;
-          this.targetY = Math.random() * H * 0.4 + H * 0.12; // Explode in sky
+          this.targetY = Math.random() * H * 0.4 + H * 0.12; 
           this.speed = Math.random() * 4 + 7.5;
           this.angle = -Math.PI / 2 + (Math.random() - 0.5) * 0.25;
           this.vx = Math.cos(this.angle) * this.speed;
@@ -1146,7 +1392,7 @@
         update() {
           this.x += this.vx;
           this.y += this.vy;
-          this.vy += 0.06; // Gravity drag on rocket climb
+          this.vy += 0.06; 
           
           this.trail.push({ x: this.x, y: this.y, alpha: 1 });
           if (this.trail.length > 14) this.trail.shift();
@@ -1160,7 +1406,6 @@
         }
 
         explode() {
-          // Circular firework explosion
           const count = 70;
           const palette = ['#00ffd0', '#ff6b9d', '#ffd580', '#7fffd4', '#ffb3cc', '#c084fc'];
           const primeColor = this.color;
@@ -1183,7 +1428,6 @@
             ctx.arc(t.x, t.y, size, 0, Math.PI * 2);
             ctx.fill();
             
-            // Glowing golden sparkler details
             if (Math.random() < 0.35) {
               ctx.fillStyle = '#ffd580';
               ctx.fillRect(t.x + (Math.random() - 0.5) * 6, t.y + (Math.random() - 0.5) * 6, 1.5, 1.5);
@@ -1193,7 +1437,6 @@
         }
       }
 
-      // Automatically launch rockets
       setInterval(() => {
         if (rockets.length < 3) {
           rockets.push(new Rocket());
@@ -1203,14 +1446,12 @@
       function drawShooters() {
         shCtx.clearRect(0, 0, W, H);
 
-        // Update & Render Rockets
         rockets = rockets.filter(r => !r.exploded);
         rockets.forEach(r => {
           r.update();
           r.draw(shCtx);
         });
 
-        // Update & Render Particles
         particles = particles.filter(p => p.alpha > 0.01);
         particles.forEach(p => {
           p.update();
@@ -1218,14 +1459,12 @@
         });
       }
 
-      // ── ANIMATION LOOP ───────────────────────────
       (function loop(ts) {
         drawStars(ts * 0.001);
         drawShooters();
         requestAnimationFrame(loop);
       })(0);
 
-      // ── DUST PARTICLES ───────────────────────────
       const pfield = document.getElementById('pfield');
       for (let i = 0; i < 32; i++) {
         const d = document.createElement('div'); d.className = 'dust';
@@ -1242,7 +1481,6 @@
         pfield.appendChild(d);
       }
 
-      // ── GLITTER ──────────────────────────────────
       const glitter = document.getElementById('glitter');
       for (let i = 0; i < 18; i++) {
         const g = document.createElement('div'); g.className = 'gl';
@@ -1258,7 +1496,6 @@
         glitter.appendChild(g);
       }
 
-      // ── FLOATERS ─────────────────────────────────
       const floatEl = document.getElementById('floaters');
       const POOL = ['🐄', '🐐', '🏮', '🪔', '💖', '💕', '🌙', '✨', '🌸', '💝', '🦋', '🌺', '💫', '🎐'];
       const WEIGHTS = [3, 3, 2, 2, 3, 2, 1, 2, 2, 1, 1, 1, 2, 1];
@@ -1282,7 +1519,6 @@
       for (let i = 0; i < 14; i++) setTimeout(spawnF, i * 900);
       setInterval(spawnF, 1600);
 
-      // ── NOTE TRAIL ───────────────────────────────
       const musNotes = ['🎵', '🎶', '🎼', '♪', '♫'];
       function startNoteTrail() {
         if (!playing) return;
@@ -1303,9 +1539,58 @@
         }, 400);
       }
 
-      // ── BURST INTERACTION ────────────────────────
+      const loveContainer = document.createElement('div');
+      loveContainer.style.cssText = 'position:fixed; inset:0; pointer-events:none; z-index:6; overflow:hidden;';
+      document.body.appendChild(loveContainer);
+
+      function spawnLoveHeart() {
+        const heart = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        heart.setAttribute('viewBox', '0 0 32 29.6');
+        heart.setAttribute('class', 'floating-love-heart');
+        
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z');
+        
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * 160 + 120; 
+        const hx = Math.cos(angle) * distance;
+        const hy = Math.sin(angle) * distance - 60; 
+        const hr = (Math.random() - 0.5) * 80; 
+        const size = Math.random() * 15 + 8; 
+        const delay = Math.random() * 0.6;
+        const duration = Math.random() * 3 + 4.5; 
+        
+        const startX = window.innerWidth / 2;
+        const startY = window.innerHeight / 2;
+        
+        heart.style.cssText = `
+          position: absolute;
+          left: ${startX}px;
+          top: ${startY}px;
+          width: ${size}px;
+          height: ${size}px;
+          margin-left: -${size/2}px;
+          margin-top: -${size/2}px;
+          fill: url(#loveHeartGrad);
+          filter: drop-shadow(0 0 6px rgba(255, 107, 157, 0.75));
+          opacity: 0;
+          --hx: ${hx}px;
+          --hy: ${hy}px;
+          --hr: ${hr}deg;
+          animation: floatLoveHeart ${duration}s cubic-bezier(0.15, 0.75, 0.3, 1) ${delay}s forwards;
+        `;
+        
+        heart.appendChild(path);
+        loveContainer.appendChild(heart);
+        
+        setTimeout(() => {
+          heart.remove();
+        }, (duration + delay) * 1000 + 100);
+      }
+      
+      setInterval(spawnLoveHeart, 700);
+
       function triggerBurst(x, y) {
-        // Playful Expand Ripples
         ['', 'r2'].forEach(cls => {
           const r = document.createElement('div');
           r.className = 'ripple-el ' + cls;
@@ -1314,7 +1599,6 @@
           setTimeout(() => r.remove(), 1400);
         });
 
-        // Launch sparkling particles & hearts on Canvas
         const palette = ['#00ffd0', '#ff6b9d', '#ffd580', '#7fffd4', '#ffb3cc', '#c084fc'];
         for (let i = 0; i < 35; i++) {
           const isHeart = Math.random() < 0.4;
@@ -1332,7 +1616,6 @@
         if (t) triggerBurst(t.clientX, t.clientY);
       }, { passive: true });
 
-      // ── MOBILE VH HEIGHT FIX ─────────────────────
       function setVh() {
         document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
       }
