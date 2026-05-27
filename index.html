@@ -218,46 +218,6 @@
       .lantern svg { width: 45px; height: 90px; }
     }
 
-    /* ─ MUSIC BTN ─ */
-    .music-btn {
-      position: fixed;
-      top: clamp(12px, 3vw, 22px);
-      right: clamp(12px, 3vw, 22px);
-      z-index: 100;
-      width: clamp(44px, 12vw, 54px);
-      height: clamp(44px, 12vw, 54px);
-      border-radius: 50%;
-      border: 1.5px solid rgba(0, 212, 170, 0.5);
-      background: rgba(2, 20, 28, 0.75);
-      backdrop-filter: blur(12px);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: clamp(1.2rem, 4vw, 1.5rem);
-      transition: transform .2s, box-shadow .2s;
-      box-shadow: 0 0 18px rgba(0, 212, 170, 0.25);
-      animation: btnPop 0.6s cubic-bezier(.34, 1.56, .64, 1) 2s both;
-    }
-
-    .music-btn:hover {
-      transform: scale(1.12);
-      box-shadow: 0 0 28px rgba(0, 212, 170, 0.5);
-    }
-
-    .music-btn:active { transform: scale(0.94); }
-    .music-btn.playing { animation: btnPop 0.6s cubic-bezier(.34, 1.56,.64, 1) 2s both, spinNote 3s linear infinite; }
-
-    @keyframes btnPop {
-      from { opacity: 0; transform: scale(0); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    @keyframes spinNote {
-      0%, 100% { box-shadow: 0 0 18px rgba(0, 212, 170, 0.25), 0 0 0 0 rgba(0, 212, 170, 0.4); }
-      50% { box-shadow: 0 0 28px rgba(0, 212, 170, 0.5), 0 0 0 8px rgba(0, 212, 170, 0); }
-    }
-
     /* ─ MOON ─ */
     .moon-wrap {
       position: relative;
@@ -727,9 +687,6 @@
   <!-- Hidden YouTube Player Container -->
   <div id="ytplayer"></div>
 
-  <!-- MUSIC BTN -->
-  <button class="music-btn" id="musicBtn" title="Toggle Music" aria-label="Toggle background music">🎵</button>
-
   <!-- BG LAYERS -->
   <div class="aurora" aria-hidden="true">
     <div class="aurora-band ab1"></div>
@@ -850,7 +807,6 @@
       });
 
       // ── MUSIC (YouTube IFrame API — background track) ──
-      const musicBtn = document.getElementById('musicBtn');
       let playing = false;
       let ytPlayer = null;
       let ytReady = false;
@@ -901,53 +857,25 @@
         }
       }
 
-      function toggleMusic() {
-        if (!ytReady || !ytPlayer) return;
-
-        if (!playing) {
-          try {
-            ytPlayer.unMute();
-            ytPlayer.setVolume(100);
-            ytPlayer.playVideo();
-            playing = true;
-            musicBtn.textContent = '🎶';
-            musicBtn.classList.add('playing');
-            startNoteTrail();
-          } catch(e) {
-            console.error("Unmute block:", e);
-          }
-        } else {
-          try {
-            ytPlayer.pauseVideo();
-            playing = false;
-            musicBtn.textContent = '🎵';
-            musicBtn.classList.remove('playing');
-          } catch(e) {
-            console.error("Pause block:", e);
-          }
+      function startPlayback() {
+        if (!ytReady || !ytPlayer || playing) return;
+        try {
+          ytPlayer.unMute();
+          ytPlayer.setVolume(100);
+          ytPlayer.playVideo();
+          playing = true;
+          startNoteTrail();
+        } catch(e) {
+          console.error("Playback start block:", e);
         }
       }
-
-      musicBtn.addEventListener('click', toggleMusic);
 
       // ── AUTOPLAY BYPASS SYSTEM ──
       function attemptAutoplay() {
         if (!ytReady || !ytPlayer) return;
 
         const startOnFirstInteraction = () => {
-          if (!playing) {
-            try {
-              ytPlayer.unMute();
-              ytPlayer.setVolume(100);
-              ytPlayer.playVideo();
-              playing = true;
-              musicBtn.textContent = '🎶';
-              musicBtn.classList.add('playing');
-              startNoteTrail();
-            } catch(e) {
-              console.error("User interaction play fail:", e);
-            }
-          }
+          startPlayback();
           document.removeEventListener('click', startOnFirstInteraction);
           document.removeEventListener('touchstart', startOnFirstInteraction);
         };
@@ -962,8 +890,6 @@
             // Check if player is successfully running unmuted
             if (ytPlayer.getPlayerState() === 1) { // 1 = YT.PlayerState.PLAYING
               playing = true;
-              musicBtn.textContent = '🎶';
-              musicBtn.classList.add('playing');
               startNoteTrail();
             } else {
               // Blocked: revert to muted playback and bind interaction listener
@@ -1364,9 +1290,10 @@
           if (!playing) return;
           const el = document.createElement('span'); el.className = 'note-trail';
           el.textContent = musNotes[Math.floor(Math.random() * musNotes.length)];
-          const btn = musicBtn.getBoundingClientRect();
+          const spawnX = window.innerWidth - 44;
+          const spawnY = 22;
           el.style.cssText = `
-            left:${btn.left + btn.width / 2}px;top:${btn.top + btn.height / 2}px;
+            left:${spawnX}px;top:${spawnY}px;
             --nx:${(Math.random() - 0.5) * 80}px;--ny:${-(Math.random() * 60 + 20)}px;
             animation-duration:${Math.random() * 0.5 + 0.8}s;
             color:#00ffd0;
@@ -1397,12 +1324,10 @@
       }
 
       document.addEventListener('click', e => {
-        if (e.target.closest('.music-btn')) return;
         triggerBurst(e.clientX, e.clientY);
       });
 
       document.addEventListener('touchstart', e => {
-        if (e.target.closest('.music-btn')) return;
         const t = e.touches[0];
         if (t) triggerBurst(t.clientX, t.clientY);
       }, { passive: true });
