@@ -48,14 +48,14 @@
       position: relative;
     }
 
-    /* ─ YT PLAYER HIDE ─ */
+    /* ─ YT PLAYER HIDE (Positioned offscreen with minimal opacity to satisfy YouTube's visibility check) ─ */
     #ytplayer {
       position: fixed;
-      top: -100px;
-      left: -100px;
-      width: 1px;
-      height: 1px;
-      opacity: 0;
+      bottom: -1000px;
+      right: -1000px;
+      width: 320px;
+      height: 180px;
+      opacity: 0.01;
       pointer-events: none;
       z-index: -9999;
     }
@@ -440,7 +440,7 @@
         transparent 88%
       );
       animation: rotateConic 5s linear infinite;
-      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: line-gradient(#fff 0 0) content-box, line-gradient(#fff 0 0);
       mask-composite: exclude;
       -webkit-mask-composite: destination-out;
       padding: 1px;
@@ -856,25 +856,23 @@
       let ytReady = false;
       let loaderHidden = false;
 
-      // Load YouTube IFrame Player API dynamically
-      const tag = document.createElement('script');
-      tag.src = "https://www.youtube.com/iframe_api";
-      const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
+      // 1. Define the ready callback FIRST to avoid API race conditions
       window.onYouTubeIframeAPIReady = function() {
+        const originUrl = window.location.origin === 'null' ? '*' : window.location.origin;
         ytPlayer = new YT.Player('ytplayer', {
           videoId: 'pX6yiyrpH1U',
           playerVars: {
-            'autoplay': 0,
+            'autoplay': 1,
+            'mute': 1,             // Start muted to completely bypass browser autoplay restrictions
             'controls': 0,
             'loop': 1,
             'playlist': 'pX6yiyrpH1U',
-            'mute': 0,
             'playsinline': 1,
             'showinfo': 0,
             'rel': 0,
-            'modestbranding': 1
+            'modestbranding': 1,
+            'enablejsapi': 1,
+            'origin': originUrl
           },
           events: {
             'onReady': onPlayerReady,
@@ -882,6 +880,12 @@
           }
         });
       };
+
+      // 2. Load YouTube IFrame Player API dynamically after callback is registered
+      const tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
       function onPlayerReady(event) {
         ytReady = true;
@@ -891,7 +895,7 @@
       }
 
       function onPlayerStateChange(event) {
-        // Enforce loop fallback if playlist loop fails
+        // Enforce fallback loop if YouTube playlist loop fails
         if (event.data === 0) { // YT.PlayerState.ENDED
           ytPlayer.playVideo();
         }
@@ -901,16 +905,26 @@
         if (!ytReady || !ytPlayer) return;
 
         if (!playing) {
-          ytPlayer.playVideo();
-          playing = true;
-          musicBtn.textContent = '🎶';
-          musicBtn.classList.add('playing');
-          startNoteTrail();
+          try {
+            ytPlayer.unMute();
+            ytPlayer.setVolume(100);
+            ytPlayer.playVideo();
+            playing = true;
+            musicBtn.textContent = '🎶';
+            musicBtn.classList.add('playing');
+            startNoteTrail();
+          } catch(e) {
+            console.error("Unmute block:", e);
+          }
         } else {
-          ytPlayer.pauseVideo();
-          playing = false;
-          musicBtn.textContent = '🎵';
-          musicBtn.classList.remove('playing');
+          try {
+            ytPlayer.pauseVideo();
+            playing = false;
+            musicBtn.textContent = '🎵';
+            musicBtn.classList.remove('playing');
+          } catch(e) {
+            console.error("Pause block:", e);
+          }
         }
       }
 
@@ -922,27 +936,47 @@
 
         const startOnFirstInteraction = () => {
           if (!playing) {
-            toggleMusic();
+            try {
+              ytPlayer.unMute();
+              ytPlayer.setVolume(100);
+              ytPlayer.playVideo();
+              playing = true;
+              musicBtn.textContent = '🎶';
+              musicBtn.classList.add('playing');
+              startNoteTrail();
+            } catch(e) {
+              console.error("User interaction play fail:", e);
+            }
           }
           document.removeEventListener('click', startOnFirstInteraction);
           document.removeEventListener('touchstart', startOnFirstInteraction);
         };
 
-        // Try to trigger video play immediately
-        ytPlayer.playVideo();
-
-        // Check if browser blocked auto-playback
-        setTimeout(() => {
-          if (ytPlayer.getPlayerState() !== 1) { // 1 = YT.PlayerState.PLAYING
-            document.addEventListener('click', startOnFirstInteraction);
-            document.addEventListener('touchstart', startOnFirstInteraction, { passive: true });
-          } else {
-            playing = true;
-            musicBtn.textContent = '🎶';
-            musicBtn.classList.add('playing');
-            startNoteTrail();
-          }
-        }, 400);
+        // Try unmuting immediately in case permission is already unlocked
+        try {
+          ytPlayer.unMute();
+          ytPlayer.setVolume(100);
+          ytPlayer.playVideo();
+          
+          setTimeout(() => {
+            // Check if player is successfully running unmuted
+            if (ytPlayer.getPlayerState() === 1) { // 1 = YT.PlayerState.PLAYING
+              playing = true;
+              musicBtn.textContent = '🎶';
+              musicBtn.classList.add('playing');
+              startNoteTrail();
+            } else {
+              // Blocked: revert to muted playback and bind interaction listener
+              ytPlayer.mute();
+              ytPlayer.playVideo();
+              document.addEventListener('click', startOnFirstInteraction);
+              document.addEventListener('touchstart', startOnFirstInteraction, { passive: true });
+            }
+          }, 350);
+        } catch (err) {
+          document.addEventListener('click', startOnFirstInteraction);
+          document.addEventListener('touchstart', startOnFirstInteraction, { passive: true });
+        }
       }
 
       // ── STARFIELD & GEOMETRIC MANDALAS ─────────────
@@ -960,7 +994,7 @@
           this.targetRadius = maxRadius;
           this.rotation = Math.random() * Math.PI;
           this.speed = speed;
-          this.color = themeColor; // '0, 212, 170' or '255, 107, 157'
+          this.color = themeColor;
           this.alpha = 0;
         }
 
