@@ -48,6 +48,18 @@
       position: relative;
     }
 
+    /* ─ YT PLAYER HIDE ─ */
+    #ytplayer {
+      position: fixed;
+      top: -100px;
+      left: -100px;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+      z-index: -9999;
+    }
+
     /* ─ AURORA BG ─ */
     .aurora {
       position: fixed;
@@ -712,6 +724,9 @@
     <div class="loader-bar"><div class="loader-fill"></div></div>
   </div>
 
+  <!-- Hidden YouTube Player Container -->
+  <div id="ytplayer"></div>
+
   <!-- MUSIC BTN -->
   <button class="music-btn" id="musicBtn" title="Toggle Music" aria-label="Toggle background music">🎵</button>
 
@@ -828,93 +843,71 @@
       window.addEventListener('load', () => {
         setTimeout(() => {
           loader.classList.add('hide');
+          loaderHidden = true;
           // Automatically trigger the sound system smoothly
           attemptAutoplay();
         }, 2200);
       });
 
-      // ── MUSIC (Web Audio API — gentle Eid-style ambient synthesizer) ──
+      // ── MUSIC (YouTube IFrame API — background track) ──
       const musicBtn = document.getElementById('musicBtn');
-      let audioCtx = null, playing = false, masterGain = null;
-      const oscillators = [], notes = [261.63, 293.66, 329.63, 349.23, 392, 440, 493.88];
+      let playing = false;
+      let ytPlayer = null;
+      let ytReady = false;
+      let loaderHidden = false;
 
-      function buildMusic() {
-        if (audioCtx) return;
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        masterGain = audioCtx.createGain();
-        masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
-        masterGain.connect(audioCtx.destination);
+      // Load YouTube IFrame Player API dynamically
+      const tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        // Simulated high-end studio reverb
-        const conv = audioCtx.createConvolver();
-        const len = audioCtx.sampleRate * 3;
-        const buf = audioCtx.createBuffer(2, len, audioCtx.sampleRate);
-        for (let c = 0; c < 2; c++) {
-          const d = buf.getChannelData(c);
-          for (let i = 0; i < len; i++) {
-            d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
+      window.onYouTubeIframeAPIReady = function() {
+        ytPlayer = new YT.Player('ytplayer', {
+          videoId: 'pX6yiyrpH1U',
+          playerVars: {
+            'autoplay': 0,
+            'controls': 0,
+            'loop': 1,
+            'playlist': 'pX6yiyrpH1U',
+            'mute': 0,
+            'playsinline': 1,
+            'showinfo': 0,
+            'rel': 0,
+            'modestbranding': 1
+          },
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
           }
+        });
+      };
+
+      function onPlayerReady(event) {
+        ytReady = true;
+        if (loaderHidden) {
+          attemptAutoplay();
         }
-        conv.buffer = buf;
-        const convGain = audioCtx.createGain();
-        convGain.gain.value = 0.35;
-        masterGain.connect(conv);
-        conv.connect(convGain);
-        convGain.connect(audioCtx.destination);
+      }
 
-        // Gentle arpeggio loop melody
-        function playNote(freq, start, dur, vol = 0.06) {
-          const osc = audioCtx.createOscillator();
-          const g = audioCtx.createGain();
-          osc.type = 'sine';
-          osc.frequency.value = freq;
-          g.gain.setValueAtTime(0, start);
-          g.gain.linearRampToValueAtTime(vol, start + 0.08);
-          g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
-          osc.connect(g);
-          g.connect(masterGain);
-          osc.start(start);
-          osc.stop(start + dur + 0.1);
-          oscillators.push(osc);
+      function onPlayerStateChange(event) {
+        // Enforce loop fallback if playlist loop fails
+        if (event.data === 0) { // YT.PlayerState.ENDED
+          ytPlayer.playVideo();
         }
-
-        const melody = [0, 2, 4, 5, 4, 2, 0, 2, 4, 5, 7, 5, 4, 2, 0, 4, 7, 4, 0, -3, 0];
-        const baseFreq = 220;
-        let t = audioCtx.currentTime + 0.5;
-        const beat = 0.52;
-
-        function scheduleLoop() {
-          melody.forEach((semi, i) => {
-            const f = baseFreq * Math.pow(2, semi / 12);
-            playNote(f, t + i * beat, beat * 0.85);
-            playNote(f * 2, t + i * beat + 0.01, beat * 0.5, 0.025);
-          });
-          // Pad background chords
-          [[0, 4, 7], [2, 5, 9], [4, 7, 11]].forEach(([a, b, c], ci) => {
-            [a, b, c].forEach(s => {
-              const f = baseFreq * Math.pow(2, s / 12) * 0.5;
-              playNote(f, t + ci * beat * 7, beat * 7, 0.025);
-            });
-          });
-          t += melody.length * beat;
-        }
-
-        scheduleLoop();
-        setInterval(scheduleLoop, melody.length * beat * 1000 - 100);
       }
 
       function toggleMusic() {
+        if (!ytReady || !ytPlayer) return;
+
         if (!playing) {
-          buildMusic();
-          if (audioCtx.state === 'suspended') audioCtx.resume();
-          masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
-          masterGain.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 1.2);
+          ytPlayer.playVideo();
           playing = true;
           musicBtn.textContent = '🎶';
           musicBtn.classList.add('playing');
           startNoteTrail();
         } else {
-          masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8);
+          ytPlayer.pauseVideo();
           playing = false;
           musicBtn.textContent = '🎵';
           musicBtn.classList.remove('playing');
@@ -925,7 +918,8 @@
 
       // ── AUTOPLAY BYPASS SYSTEM ──
       function attemptAutoplay() {
-        // Fallback listener: unlocks sound on the first user interaction anywhere
+        if (!ytReady || !ytPlayer) return;
+
         const startOnFirstInteraction = () => {
           if (!playing) {
             toggleMusic();
@@ -934,28 +928,21 @@
           document.removeEventListener('touchstart', startOnFirstInteraction);
         };
 
-        try {
-          buildMusic();
-          if (audioCtx) {
-            if (audioCtx.state === 'suspended') {
-              // Browser is actively restricting audio: listen for interaction anywhere to trigger play
-              document.addEventListener('click', startOnFirstInteraction);
-              document.addEventListener('touchstart', startOnFirstInteraction, { passive: true });
-            } else {
-              // Browser allows programmatic autoplay: launch immediately
-              masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
-              masterGain.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 1.2);
-              playing = true;
-              musicBtn.textContent = '🎶';
-              musicBtn.classList.add('playing');
-              startNoteTrail();
-            }
+        // Try to trigger video play immediately
+        ytPlayer.playVideo();
+
+        // Check if browser blocked auto-playback
+        setTimeout(() => {
+          if (ytPlayer.getPlayerState() !== 1) { // 1 = YT.PlayerState.PLAYING
+            document.addEventListener('click', startOnFirstInteraction);
+            document.addEventListener('touchstart', startOnFirstInteraction, { passive: true });
+          } else {
+            playing = true;
+            musicBtn.textContent = '🎶';
+            musicBtn.classList.add('playing');
+            startNoteTrail();
           }
-        } catch (err) {
-          // Autoplay blocked fallback
-          document.addEventListener('click', startOnFirstInteraction);
-          document.addEventListener('touchstart', startOnFirstInteraction, { passive: true });
-        }
+        }, 400);
       }
 
       // ── STARFIELD & GEOMETRIC MANDALAS ─────────────
