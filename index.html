@@ -9,7 +9,6 @@
         :root {
             --teal: #00d4aa;
             --teal2: #00ffcc;
-            --emerald: #00b890;
             --rose: #ff6b9d;
             --rose2: #ff8fb3;
             --peach: #ffb347;
@@ -343,6 +342,30 @@
             }
             100% {
                 transform: translate(var(--hx), var(--hy)) scale(1.2) rotate(var(--hr));
+                opacity: 0;
+            }
+        }
+
+        /* New: click love emoji animation */
+        .click-emoji {
+            position: fixed;
+            pointer-events: none;
+            z-index: 200;
+            font-size: 2rem;
+            animation: emojiPop 1.8s ease-out forwards;
+        }
+
+        @keyframes emojiPop {
+            0% {
+                transform: translate(0, 0) scale(0.3);
+                opacity: 1;
+            }
+            30% {
+                transform: translate(var(--ex), var(--ey)) scale(1.4);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--ex), var(--ey)) scale(0.6);
                 opacity: 0;
             }
         }
@@ -1160,7 +1183,6 @@
         (function() {
             "use strict";
 
-            // ── LOADER ──
             const loader = document.getElementById('loader');
             const muteToast = document.getElementById('mute-toast');
 
@@ -1171,7 +1193,6 @@
                 }, 2200);
             });
 
-            // ── YOUTUBE MUSIC ONLY ──
             let ytPlayer = null;
             let ytReady = false;
             let unmuted = false;
@@ -1222,7 +1243,7 @@
             }
 
             function onPlayerError(event) {
-                console.warn("YouTube player error. Music might not play.");
+                console.warn("YouTube player error.");
             }
 
             function startPlayback() {
@@ -1232,45 +1253,33 @@
                     ytPlayer.setVolume(85);
                     ytPlayer.playVideo();
                     unmuted = true;
-                } catch (e) {
-                    console.warn("YouTube unmute failed:", e);
-                }
+                } catch (e) {}
             }
 
             function attemptAutoplay() {
                 if (ytReady && ytPlayer) {
-                    try {
-                        ytPlayer.playVideo();
-                    } catch (e) {}
+                    try { ytPlayer.playVideo(); } catch (e) {}
                 }
                 const unmuteOnInteraction = () => {
-                    if (!unmuted) {
-                        startPlayback();
-                    }
+                    if (!unmuted) startPlayback();
                 };
                 document.addEventListener('click', unmuteOnInteraction);
                 document.addEventListener('touchstart', unmuteOnInteraction, { passive: true });
             }
 
             function toggleMute() {
-                if (!unmuted) {
-                    startPlayback();
-                }
+                if (!unmuted) startPlayback();
                 isMuted = !isMuted;
                 showMuteToast(isMuted ? '🔇 Music Off' : '🔊 Music On');
-
                 if (ytReady && ytPlayer) {
                     try {
-                        if (isMuted) {
-                            ytPlayer.mute();
-                        } else {
+                        if (isMuted) ytPlayer.mute();
+                        else {
                             ytPlayer.unMute();
                             ytPlayer.setVolume(85);
                             if (ytPlayer.getPlayerState() !== 1) ytPlayer.playVideo();
                         }
-                    } catch (err) {
-                        console.warn("Error toggling mute:", err);
-                    }
+                    } catch (err) {}
                 }
             }
 
@@ -1278,9 +1287,7 @@
                 muteToast.textContent = msg;
                 muteToast.classList.add('show');
                 clearTimeout(toastTimeout);
-                toastTimeout = setTimeout(() => {
-                    muteToast.classList.remove('show');
-                }, 1500);
+                toastTimeout = setTimeout(() => muteToast.classList.remove('show'), 1500);
             }
 
             const moonWrap = document.querySelector('.moon-wrap');
@@ -1301,160 +1308,88 @@
 
             class BackgroundMandala {
                 constructor(x, y, maxRadius, speed, themeColor) {
-                    this.x = x;
-                    this.y = y;
-                    this.maxRadius = maxRadius;
-                    this.radius = 0;
-                    this.targetRadius = maxRadius;
-                    this.rotation = Math.random() * Math.PI;
-                    this.speed = speed;
-                    this.color = themeColor;
-                    this.alpha = 0;
+                    this.x = x; this.y = y; this.maxRadius = maxRadius; this.radius = 0;
+                    this.targetRadius = maxRadius; this.rotation = Math.random() * Math.PI;
+                    this.speed = speed; this.color = themeColor; this.alpha = 0;
                 }
                 update() {
                     this.rotation += this.speed;
-                    if (this.radius < this.targetRadius) {
-                        this.radius += (this.targetRadius - this.radius) * 0.04;
-                    }
+                    if (this.radius < this.targetRadius) this.radius += (this.targetRadius - this.radius) * 0.04;
                     if (this.alpha < 0.35) this.alpha += 0.005;
                 }
                 draw(ctx) {
-                    ctx.save();
-                    ctx.translate(this.x, this.y);
-                    ctx.rotate(this.rotation);
-                    ctx.lineWidth = 1.2;
+                    ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.rotation); ctx.lineWidth = 1.2;
                     ctx.strokeStyle = `rgba(${this.color}, ${this.alpha * 0.12})`;
-                    ctx.beginPath();
-                    for (let i = 0; i < 12; i++) {
-                        ctx.rotate(Math.PI / 6);
-                        ctx.strokeRect(-this.radius * 0.7, -this.radius * 0.7, this.radius * 1.4, this.radius * 1.4);
-                    }
+                    ctx.beginPath(); for (let i=0;i<12;i++) { ctx.rotate(Math.PI/6); ctx.strokeRect(-this.radius*0.7,-this.radius*0.7,this.radius*1.4,this.radius*1.4); }
                     ctx.strokeStyle = `rgba(${this.color}, ${this.alpha * 0.18})`;
-                    ctx.beginPath();
-                    for (let i = 0; i < 8; i++) {
-                        ctx.rotate(Math.PI / 4);
-                        ctx.moveTo(0, -this.radius * 0.55);
-                        ctx.lineTo(this.radius * 0.15, -this.radius * 0.15);
-                        ctx.lineTo(this.radius * 0.55, 0);
-                        ctx.lineTo(this.radius * 0.15, this.radius * 0.15);
-                        ctx.lineTo(0, this.radius * 0.55);
-                        ctx.lineTo(-this.radius * 0.15, this.radius * 0.15);
-                        ctx.lineTo(-this.radius * 0.55, 0);
-                        ctx.lineTo(-this.radius * 0.15, -this.radius * 0.15);
-                        ctx.closePath();
-                        ctx.stroke();
-                    }
-                    ctx.strokeStyle = `rgba(${this.color}, ${this.alpha * 0.08})`;
-                    ctx.beginPath();
-                    ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.arc(0, 0, this.radius * 0.3, 0, Math.PI * 2);
-                    ctx.stroke();
-                    ctx.strokeStyle = `rgba(${this.color}, ${this.alpha * 0.15})`;
-                    ctx.beginPath();
-                    for (let i = 0; i < 24; i++) {
-                        const angle = (i / 24) * Math.PI * 2;
-                        const x1 = Math.cos(angle) * (this.radius * 0.9);
-                        const y1 = Math.sin(angle) * (this.radius * 0.9);
-                        const x2 = Math.cos(angle) * (this.radius * 1.05);
-                        const y2 = Math.sin(angle) * (this.radius * 1.05);
-                        ctx.moveTo(x1, y1);
-                        ctx.lineTo(x2, y2);
-                    }
-                    ctx.stroke();
+                    ctx.beginPath(); for (let i=0;i<8;i++) { ctx.rotate(Math.PI/4); ctx.moveTo(0,-this.radius*0.55); ctx.lineTo(this.radius*0.15,-this.radius*0.15); ctx.lineTo(this.radius*0.55,0); ctx.lineTo(this.radius*0.15,this.radius*0.15); ctx.lineTo(0,this.radius*0.55); ctx.lineTo(-this.radius*0.15,this.radius*0.15); ctx.lineTo(-this.radius*0.55,0); ctx.lineTo(-this.radius*0.15,-this.radius*0.15); ctx.closePath(); ctx.stroke(); }
+                    ctx.strokeStyle = `rgba(${this.color}, ${this.alpha * 0.08})`; ctx.beginPath(); ctx.arc(0,0,this.radius,0,Math.PI*2); ctx.stroke();
+                    ctx.beginPath(); ctx.arc(0,0,this.radius*0.3,0,Math.PI*2); ctx.stroke();
                     ctx.restore();
                 }
             }
 
             function resize() {
-                W = sky.width = window.innerWidth;
-                H = sky.height = window.innerHeight;
-                document.getElementById('shoots').width = W;
-                document.getElementById('shoots').height = H;
-                buildMandalas();
-                setupHeartTracers();
+                W = sky.width = window.innerWidth; H = sky.height = window.innerHeight;
+                document.getElementById('shoots').width = W; document.getElementById('shoots').height = H;
+                buildMandalas(); setupHeartTracers();
             }
 
             function buildMandalas() {
                 mandalas = [
-                    new BackgroundMandala(W * 0.5, H * 0.35, Math.min(W * 0.3, 220), 0.0015, '0, 212, 170'),
-                    new BackgroundMandala(W * 0.15, H * 0.2, Math.min(W * 0.15, 110), -0.002, '255, 107, 157'),
-                    new BackgroundMandala(W * 0.85, H * 0.75, Math.min(W * 0.18, 130), 0.001, '0, 212, 170')
+                    new BackgroundMandala(W*0.5, H*0.35, Math.min(W*0.3,220), 0.0015, '0,212,170'),
+                    new BackgroundMandala(W*0.15, H*0.2, Math.min(W*0.15,110), -0.002, '255,107,157'),
+                    new BackgroundMandala(W*0.85, H*0.75, Math.min(W*0.18,130), 0.001, '0,212,170')
                 ];
             }
 
             window.addEventListener('resize', () => { resize(); buildStars(); });
 
             function buildStars() {
-                stars = Array.from({ length: 180 }, () => ({
-                    x: Math.random() * W,
-                    y: Math.random() * H,
-                    r: Math.random() * 2.2 + 0.4,
-                    a: Math.random() * 0.55 + 0.2,
-                    sp: Math.random() * 0.014 + 0.005,
-                    ph: Math.random() * Math.PI * 2,
-                    warm: Math.random() < 0.15,
-                    teal: Math.random() < 0.12
+                stars = Array.from({length:180}, () => ({
+                    x: Math.random()*W, y: Math.random()*H, r: Math.random()*2.2+0.4,
+                    a: Math.random()*0.55+0.2, sp: Math.random()*0.014+0.005,
+                    ph: Math.random()*Math.PI*2, warm: Math.random()<0.15, teal: Math.random()<0.12
                 }));
             }
 
             let symmetricTracers = [];
             class SymmetricHeartTracer {
-                constructor(cx, cy, size) {
-                    this.cx = cx;
-                    this.cy = cy;
-                    this.size = size;
-                    this.progress = 0;
-                    this.speed = 0.006 + Math.random() * 0.004;
-                    this.color = Math.random() < 0.5 ? '#00ffd0' : '#ff6b9d';
+                constructor(cx,cy,size) {
+                    this.cx=cx; this.cy=cy; this.size=size; this.progress=0;
+                    this.speed=0.006+Math.random()*0.004; this.color=Math.random()<0.5?'#00ffd0':'#ff6b9d';
                 }
                 update() {
                     this.progress += this.speed;
-                    if (this.progress > 1) {
-                        this.progress = 0;
-                        this.color = Math.random() < 0.5 ? '#00ffd0' : '#ff6b9d';
-                    }
-                    const tLeft = Math.PI - this.progress * Math.PI;
-                    const tRight = Math.PI + this.progress * Math.PI;
-                    const getCardioidCoord = (t) => {
-                        const x = 16 * Math.pow(Math.sin(t), 3);
-                        const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
-                        return { x: this.cx + x * this.size, y: this.cy + y * this.size };
-                    };
-                    const pLeft = getCardioidCoord(tLeft);
-                    const pRight = getCardioidCoord(tRight);
-                    particles.push(new FireworkParticle(pLeft.x, pLeft.y, this.color, false));
-                    particles.push(new FireworkParticle(pRight.x, pRight.y, this.color, false));
-                    if (Math.random() < 0.12) {
-                        particles.push(new FireworkParticle(pLeft.x, pLeft.y, '#ff8fb3', true));
-                        particles.push(new FireworkParticle(pRight.x, pRight.y, '#ff8fb3', true));
-                    }
+                    if(this.progress>1) { this.progress=0; this.color=Math.random()<0.5?'#00ffd0':'#ff6b9d'; }
+                    const tLeft = Math.PI - this.progress*Math.PI, tRight = Math.PI + this.progress*Math.PI;
+                    const getCoord = (t) => ({
+                        x: this.cx + 16*Math.pow(Math.sin(t),3)*this.size,
+                        y: this.cy - (13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))*this.size
+                    });
+                    const pL=getCoord(tLeft), pR=getCoord(tRight);
+                    particles.push(new FireworkParticle(pL.x,pL.y,this.color,false));
+                    particles.push(new FireworkParticle(pR.x,pR.y,this.color,false));
                 }
             }
 
             function setupHeartTracers() {
-                const tracerSize = Math.min(W * 0.024, 11);
-                symmetricTracers = [
-                    new SymmetricHeartTracer(W * 0.5, H * 0.5, tracerSize),
-                    new SymmetricHeartTracer(W * 0.5, H * 0.5, tracerSize * 0.85)
-                ];
+                const sz = Math.min(W*0.024,11);
+                symmetricTracers = [new SymmetricHeartTracer(W*0.5,H*0.5,sz), new SymmetricHeartTracer(W*0.5,H*0.5,sz*0.85)];
             }
 
-            resize();
-            buildStars();
+            resize(); buildStars();
 
             function drawStars(t) {
-                skCtx.clearRect(0, 0, W, H);
-                mandalas.forEach(m => { m.update(); m.draw(skCtx); });
-                symmetricTracers.forEach(tr => tr.update());
-                stars.forEach(s => {
-                    const alpha = Math.max(0.05, s.a + Math.sin(t * s.sp + s.ph) * 0.32);
-                    skCtx.globalAlpha = alpha;
-                    skCtx.fillStyle = s.teal ? '#00ffd0' : s.warm ? '#ffd580' : '#fff';
-                    skCtx.beginPath(); skCtx.arc(s.x, s.y, s.r, 0, Math.PI*2); skCtx.fill();
+                skCtx.clearRect(0,0,W,H);
+                mandalas.forEach(m=>{ m.update(); m.draw(skCtx); });
+                symmetricTracers.forEach(tr=>tr.update());
+                stars.forEach(s=>{
+                    const alpha = Math.max(0.05, s.a+Math.sin(t*s.sp+s.ph)*0.32);
+                    skCtx.globalAlpha=alpha; skCtx.fillStyle=s.teal?'#00ffd0':s.warm?'#ffd580':'#fff';
+                    skCtx.beginPath(); skCtx.arc(s.x,s.y,s.r,0,Math.PI*2); skCtx.fill();
                 });
-                skCtx.globalAlpha = 1;
+                skCtx.globalAlpha=1;
             }
 
             const shCanvas = document.getElementById('shoots');
@@ -1462,71 +1397,56 @@
             let particles = [];
             let rockets = [];
 
-            function drawCanvasHeart(ctx, x, y, size, color, alpha) {
-                ctx.save(); ctx.globalAlpha = alpha; ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.moveTo(x, y + size/4);
-                ctx.quadraticCurveTo(x, y, x - size/2, y);
-                ctx.quadraticCurveTo(x - size, y, x - size, y + size/3);
-                ctx.quadraticCurveTo(x - size, y + size*0.7, x, y + size);
-                ctx.quadraticCurveTo(x + size, y + size*0.7, x + size, y + size/3);
-                ctx.quadraticCurveTo(x + size, y, x + size/2, y);
-                ctx.quadraticCurveTo(x, y, x, y + size/4);
-                ctx.closePath(); ctx.fill(); ctx.restore();
+            function drawCanvasHeart(ctx,x,y,size,color,alpha) {
+                ctx.save(); ctx.globalAlpha=alpha; ctx.fillStyle=color;
+                ctx.beginPath(); ctx.moveTo(x,y+size/4); ctx.quadraticCurveTo(x,y,x-size/2,y);
+                ctx.quadraticCurveTo(x-size,y,x-size,y+size/3); ctx.quadraticCurveTo(x-size,y+size*0.7,x,y+size);
+                ctx.quadraticCurveTo(x+size,y+size*0.7,x+size,y+size/3); ctx.quadraticCurveTo(x+size,y,x+size/2,y);
+                ctx.quadraticCurveTo(x,y,x,y+size/4); ctx.closePath(); ctx.fill(); ctx.restore();
             }
 
             class FireworkParticle {
-                constructor(x, y, color, isHeart = false) {
-                    this.x = x; this.y = y;
-                    const angle = Math.random() * Math.PI * 2;
-                    const speed = isHeart ? Math.random()*3+1.2 : Math.random()*5+2.5;
-                    this.vx = Math.cos(angle)*speed; this.vy = Math.sin(angle)*speed - (isHeart?1:0);
-                    this.color = color; this.isHeart = isHeart; this.alpha = 1;
-                    this.decay = Math.random()*0.012+0.007;
-                    this.size = isHeart ? Math.random()*7+5 : Math.random()*3+1.5;
-                    this.gravity = isHeart ? -0.015 : 0.05;
-                    this.friction = 0.98;
+                constructor(x,y,color,isHeart=false) {
+                    this.x=x; this.y=y; const angle=Math.random()*Math.PI*2;
+                    const speed=isHeart?Math.random()*3+1.2:Math.random()*5+2.5;
+                    this.vx=Math.cos(angle)*speed; this.vy=Math.sin(angle)*speed-(isHeart?1:0);
+                    this.color=color; this.isHeart=isHeart; this.alpha=1;
+                    this.decay=Math.random()*0.012+0.007; this.size=isHeart?Math.random()*7+5:Math.random()*3+1.5;
+                    this.gravity=isHeart?-0.015:0.05; this.friction=0.98;
                 }
-                update() {
-                    this.vx *= this.friction; this.vy *= this.friction; this.vy += this.gravity;
-                    this.x += this.vx; this.y += this.vy; this.alpha -= this.decay;
-                }
+                update() { this.vx*=this.friction; this.vy*=this.friction; this.vy+=this.gravity; this.x+=this.vx; this.y+=this.vy; this.alpha-=this.decay; }
                 draw(ctx) {
-                    if (this.isHeart) drawCanvasHeart(ctx, this.x, this.y, this.size, this.color, this.alpha);
-                    else {
-                        ctx.save(); ctx.globalAlpha = this.alpha; ctx.fillStyle = this.color;
-                        ctx.shadowBlur = this.size*2; ctx.shadowColor = this.color;
-                        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
-                        ctx.restore();
-                    }
+                    if(this.isHeart) drawCanvasHeart(ctx,this.x,this.y,this.size,this.color,this.alpha);
+                    else { ctx.save(); ctx.globalAlpha=this.alpha; ctx.fillStyle=this.color; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); ctx.restore(); }
                 }
             }
 
             class Rocket {
                 constructor() {
-                    this.x = Math.random()*W*0.8 + W*0.1; this.y = H;
-                    this.targetY = Math.random()*H*0.4 + H*0.12;
-                    this.speed = Math.random()*4+7.5;
-                    this.angle = -Math.PI/2 + (Math.random()-0.5)*0.25;
-                    this.vx = Math.cos(this.angle)*this.speed;
-                    this.vy = Math.sin(this.angle)*this.speed;
-                    this.color = Math.random()<0.55 ? '#ff6b9d' : '#00ffd0';
-                    this.exploded = false; this.trail = [];
+                    this.x=Math.random()*W*0.8+W*0.1; this.y=H; this.targetY=Math.random()*H*0.4+H*0.12;
+                    this.speed=Math.random()*4+7.5; this.angle=-Math.PI/2+(Math.random()-0.5)*0.25;
+                    this.vx=Math.cos(this.angle)*this.speed; this.vy=Math.sin(this.angle)*this.speed;
+                    this.color=Math.random()<0.55?'#ff6b9d':'#00ffd0'; this.exploded=false; this.trail=[];
                 }
                 update() {
-                    this.x += this.vx; this.y += this.vy; this.vy += 0.06;
-                    this.trail.push({x:this.x, y:this.y, alpha:1});
-                    if(this.trail.length>14) this.trail.shift();
+                    this.x+=this.vx; this.y+=this.vy; this.vy+=0.06;
+                    this.trail.push({x:this.x,y:this.y,alpha:1}); if(this.trail.length>14) this.trail.shift();
                     this.trail.forEach(t=>t.alpha-=0.07);
-                    if(this.vy>=0 || this.y<=this.targetY) { this.exploded=true; this.explode(); }
+                    if(this.vy>=0||this.y<=this.targetY) { this.exploded=true; this.explode(); }
                 }
                 explode() {
                     const count=70; const palette=['#00ffd0','#ff6b9d','#ffd580','#7fffd4','#ffb3cc','#c084fc'];
                     for(let i=0;i<count;i++) {
-                        const isHeart = Math.random()<0.35;
-                        const col = Math.random()<0.6 ? this.color : palette[Math.floor(Math.random()*palette.length)];
+                        const isHeart=Math.random()<0.35;
+                        const col=Math.random()<0.6?this.color:palette[Math.floor(Math.random()*palette.length)];
                         particles.push(new FireworkParticle(this.x,this.y,col,isHeart));
                     }
+                }
+                draw(ctx) {
+                    ctx.save(); this.trail.forEach((t,idx)=>{
+                        if(t.alpha<=0) return; ctx.globalAlpha=t.alpha*0.85; ctx.fillStyle=this.color;
+                        const size=(idx/this.trail.length)*3+1; ctx.beginPath(); ctx.arc(t.x,t.y,size,0,Math.PI*2); ctx.fill();
+                    }); ctx.restore();
                 }
             }
 
@@ -1534,18 +1454,41 @@
 
             function drawShooters() {
                 shCtx.clearRect(0,0,W,H);
-                rockets = rockets.filter(r=>!r.exploded);
-                rockets.forEach(r=>{ r.update(); r.draw(shCtx); });
-                particles = particles.filter(p=>p.alpha>0.01);
-                particles.forEach(p=>{ p.update(); p.draw(shCtx); });
+                rockets = rockets.filter(r=>!r.exploded); rockets.forEach(r=>{ r.update(); r.draw(shCtx); });
+                particles = particles.filter(p=>p.alpha>0.01); particles.forEach(p=>{ p.update(); p.draw(shCtx); });
             }
 
-            (function loop(ts) {
-                drawStars(ts*0.001);
-                drawShooters();
-                requestAnimationFrame(loop);
-            })(0);
+            (function loop(ts) { drawStars(ts*0.001); drawShooters(); requestAnimationFrame(loop); })(0);
 
+            // ── CLICK LOVE EMOJIS ──
+            const loveEmojis = ['💖','💕','❤️','💗','💘','💝','💞','😍','🥰','💓','🌸','✨','💐','🌷'];
+            function spawnClickEmoji(x, y) {
+                const el = document.createElement('span');
+                el.className = 'click-emoji';
+                el.textContent = loveEmojis[Math.floor(Math.random() * loveEmojis.length)];
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 40 + Math.random() * 80;
+                const ex = Math.cos(angle) * distance;
+                const ey = Math.sin(angle) * distance - 50;
+                el.style.left = x + 'px';
+                el.style.top = y + 'px';
+                el.style.setProperty('--ex', ex + 'px');
+                el.style.setProperty('--ey', ey + 'px');
+                document.body.appendChild(el);
+                setTimeout(() => el.remove(), 1900);
+            }
+
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.moon-wrap')) return;
+                spawnClickEmoji(e.clientX, e.clientY);
+            });
+            document.addEventListener('touchstart', (e) => {
+                if (e.target.closest('.moon-wrap')) return;
+                const t = e.touches[0];
+                if (t) spawnClickEmoji(t.clientX, t.clientY);
+            }, { passive: true });
+
+            // Dust, glitter, floaters, love hearts (unchanged)
             const pfield = document.getElementById('pfield');
             for(let i=0;i<32;i++) {
                 const d=document.createElement('div'); d.className='dust';
@@ -1559,7 +1502,6 @@
                 g.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;background:${['#00ffd0','#ff8fb3','#ffd580'][i%3]};--gr:${Math.random()*20+8}px;animation-duration:${Math.random()*4+3}s,${Math.random()*2+1.5}s;`;
                 glitter.appendChild(g);
             }
-
             const floatEl = document.getElementById('floaters');
             const POOL = ['🐄','🐐','🏮','🪔','💖','💕','🌙','✨','🌸','💝','🦋','🌺','💫','🎐'];
             const WEIGHTS = [3,3,2,2,3,2,1,2,2,1,1,1,2,1];
@@ -1569,8 +1511,7 @@
                 el.textContent = weighted[Math.floor(Math.random()*weighted.length)];
                 const sw=(Math.random()-0.5)*90, rt=(Math.random()-0.5)*32, dur=Math.random()*10+17;
                 el.style.cssText = `left:${Math.random()*92}%;--sw:${sw}px;--rt:${rt}deg;font-size:${(Math.random()*1.5+1.2).toFixed(2)}rem;animation:floatUp ${dur}s linear forwards;`;
-                floatEl.appendChild(el);
-                setTimeout(()=>el.remove(), dur*1000+300);
+                floatEl.appendChild(el); setTimeout(()=>el.remove(), dur*1000+300);
             }
             for(let i=0;i<14;i++) setTimeout(spawnF, i*900);
             setInterval(spawnF, 1600);
@@ -1580,49 +1521,20 @@
             document.body.appendChild(loveContainer);
             function spawnLoveHeart() {
                 const heart = document.createElementNS('http://www.w3.org/2000/svg','svg');
-                heart.setAttribute('viewBox','0 0 32 29.6');
-                heart.classList.add('floating-love-heart');
+                heart.setAttribute('viewBox','0 0 32 29.6'); heart.classList.add('floating-love-heart');
                 const path = document.createElementNS('http://www.w3.org/2000/svg','path');
                 path.setAttribute('d','M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z');
-                const angle = Math.random()*Math.PI*2, dist = Math.random()*160+120;
-                const hx = Math.cos(angle)*dist, hy = Math.sin(angle)*dist-60, hr = (Math.random()-0.5)*80;
-                const size = Math.random()*15+8, delay = Math.random()*0.6, duration = Math.random()*3+4.5;
+                const angle=Math.random()*Math.PI*2, dist=Math.random()*160+120;
+                const hx=Math.cos(angle)*dist, hy=Math.sin(angle)*dist-60, hr=(Math.random()-0.5)*80;
+                const size=Math.random()*15+8, delay=Math.random()*0.6, duration=Math.random()*3+4.5;
                 heart.style.cssText = `position:absolute; left:50%; top:50%; width:${size}px; height:${size}px; margin-left:-${size/2}px; margin-top:-${size/2}px; fill:url(#loveHeartGrad); filter:drop-shadow(0 0 6px rgba(255,107,157,0.75)); opacity:0; --hx:${hx}px; --hy:${hy}px; --hr:${hr}deg; animation:floatLoveHeart ${duration}s cubic-bezier(0.15,0.75,0.3,1) ${delay}s forwards;`;
-                heart.appendChild(path);
-                loveContainer.appendChild(heart);
+                heart.appendChild(path); loveContainer.appendChild(heart);
                 setTimeout(()=>heart.remove(), (duration+delay)*1000+100);
             }
             setInterval(spawnLoveHeart, 700);
 
-            function triggerBurst(x,y) {
-                ['','r2'].forEach(cls=>{
-                    const r=document.createElement('div'); r.className='ripple-el '+cls;
-                    r.style.left=x+'px'; r.style.top=y+'px'; document.body.appendChild(r);
-                    setTimeout(()=>r.remove(),1400);
-                });
-                const palette=['#00ffd0','#ff6b9d','#ffd580','#7fffd4','#ffb3cc','#c084fc'];
-                for(let i=0;i<35;i++) {
-                    const isHeart=Math.random()<0.4;
-                    const col=palette[Math.floor(Math.random()*palette.length)];
-                    particles.push(new FireworkParticle(x,y,col,isHeart));
-                }
-            }
-
-            document.addEventListener('click', e => {
-                if(e.target.closest('.moon-wrap')) return;
-                triggerBurst(e.clientX, e.clientY);
-            });
-            document.addEventListener('touchstart', e => {
-                if(e.target.closest('.moon-wrap')) return;
-                const t=e.touches[0]; if(t) triggerBurst(t.clientX, t.clientY);
-            }, {passive:true});
-
-            function setVh() {
-                document.documentElement.style.setProperty('--vh', window.innerHeight*0.01+'px');
-            }
-            setVh();
-            window.addEventListener('resize', setVh);
-            window.addEventListener('orientationchange', setVh);
+            function setVh() { document.documentElement.style.setProperty('--vh', window.innerHeight*0.01+'px'); }
+            setVh(); window.addEventListener('resize', setVh); window.addEventListener('orientationchange', setVh);
         })();
     </script>
 </body>
