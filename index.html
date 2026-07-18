@@ -1,23 +1,403 @@
-<!DOCTYPE html><html><head><meta charset='UTF-8'>
-<meta name='viewport' content='width=device-width,initial-scale=1'>
-<title>For Nusrat ❤️</title>
-<link rel='stylesheet' href='style.css'></head>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I'm Sorry, Nusrat ❤️</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
 <body>
-<div id='box' class='card'>
-<h2 id='title'>Hey Nusrat ❤️</h2>
-<p id='msg'></p>
-<div class='buttons'>
-<button id='yes'>Continue 💕</button>
-<button id='no'>NO 😅</button>
-</div>
-</div>
-<div id='final' class='card hidden'>
-<h1>YAAYY!! 🥹❤️</h1>
-<p>Dear Nusrat,<br><br>You just made me the happiest person alive.<br>
-Thank you for being such a wonderful person.<br>
-I promise to respect you, support you and always try to make you smile.<br><br>
-Forever Yours,<br><b>Jabed ❤️</b></p>
-<button onclick='location.reload()'>Replay ❤️</button>
-</div>
-<script src='script.js'></script>
-</body></html>
+
+    <!-- Background -->
+    <div class="background"></div>
+
+    <!-- Rain -->
+    <div id="rain"></div>
+
+    <!-- Floating Hearts -->
+    <div id="hearts"></div>
+
+    <!-- Rose Petals -->
+    <div id="petals"></div>
+
+    <!-- Sparkle Cursor -->
+    <div id="sparkles"></div>
+
+
+
+    <!-- ===================== -->
+    <!-- Welcome Screen -->
+    <!-- ===================== -->
+
+    <section id="welcomeScreen" class="screen">
+
+        <div class="glass-card">
+
+            <h1>Hey Nusrat ❤️</h1>
+
+            <p>
+                I made something for you...
+            </p>
+
+            <button id="startBtn">
+                Open It 🥺
+            </button>
+
+        </div>
+
+    </section>
+
+
+
+
+    <!-- ===================== -->
+    <!-- Popup Container -->
+    <!-- ===================== -->
+
+    <section id="popupSection" class="hidden">
+
+        <div class="mac-window">
+
+            <div class="title-bar">
+
+                <span class="red"></span>
+                <span class="yellow"></span>
+                <span class="green"></span>
+
+                <h3>Message</h3>
+
+            </div>
+
+            <div class="popup-body">
+
+                <h2 id="popupTitle">
+                    Hey Nusrat ❤️
+                </h2>
+
+                <p id="popupText">
+
+                </p>
+
+                <div class="buttons">
+
+                    <button id="yesBtn">
+                        Continue 💕
+                    </button>
+
+                    <button id="noBtn">
+                        No 🙈
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+
+
+    <!-- ===================== -->
+    <!-- Broken Heart -->
+    <!-- ===================== -->
+
+    <section id="brokenHeartSection" class="hidden">
+
+        <div class="glass-card">
+
+            <h1 class="heart">
+                💔
+            </h1>
+
+            <h2>
+                I know I hurt you...
+            </h2>
+
+        </div>
+
+    </section>
+
+
+
+
+
+    <!-- ===================== -->
+    <!-- Heart Repair -->
+    <!-- ===================== -->
+
+    <section id="repairSection" class="hidden">
+
+        <div class="glass-card">
+
+            <h1 class="heart">
+                ❤️‍🩹
+            </h1>
+
+            <h2>
+                I wish I could fix everything...
+            </h2>
+
+        </div>
+
+    </section>
+
+
+
+
+
+
+    <!-- ===================== -->
+    <!-- Loading Hope -->
+    <!-- ===================== -->
+
+    <section id="loadingSection" class="hidden">
+
+        <div class="glass-card">
+
+            <h2>
+
+                Loading Hope...
+
+            </h2>
+
+            <div class="progress">
+
+                <div id="progressBar"></div>
+
+            </div>
+
+            <p id="progressText">
+
+                0%
+
+            </p>
+
+        </div>
+
+    </section>
+
+
+
+
+
+
+    <!-- ===================== -->
+    <!-- Envelope -->
+    <!-- ===================== -->
+
+    <section id="envelopeSection" class="hidden">
+
+        <div class="envelope">
+
+            <div class="letter">
+
+                <h2>
+
+                    Dear Nusrat ❤️
+
+                </h2>
+
+                <div id="letterText">
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+
+
+
+
+    <!-- ===================== -->
+    <!-- Promise Card -->
+    <!-- ===================== -->
+
+    <section id="promiseSection" class="hidden">
+
+        <div class="glass-card">
+
+            <h2>
+
+                My Promise ❤️
+
+            </h2>
+
+            <ul>
+
+                <li>✔ Better Communication</li>
+
+                <li>✔ More Respect</li>
+
+                <li>✔ More Patience</li>
+
+                <li>✔ More Understanding</li>
+
+                <li>✔ More Love</li>
+
+            </ul>
+
+        </div>
+
+    </section>
+
+
+
+
+
+
+
+
+    <!-- ===================== -->
+    <!-- Memory Jar -->
+    <!-- ===================== -->
+
+    <section id="memorySection" class="hidden">
+
+        <div class="glass-card">
+
+            <h2>
+
+                Memory Jar 🫙
+
+            </h2>
+
+            <button class="memory">
+
+                🌸 First Smile
+
+            </button>
+
+            <button class="memory">
+
+                ❤️ First Long Conversation
+
+            </button>
+
+            <button class="memory">
+
+                ☕ Our Favorite Moment
+
+            </button>
+
+            <button class="memory">
+
+                🌹 One More Chance?
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+
+
+
+
+
+    <!-- ===================== -->
+    <!-- Final Question -->
+    <!-- ===================== -->
+
+    <section id="finalQuestion" class="hidden">
+
+        <div class="glass-card">
+
+            <h1>
+
+                Will You Forgive Me?
+
+            </h1>
+
+            <div class="buttons">
+
+                <button id="forgiveBtn">
+
+                    Yes ❤️
+
+                </button>
+
+                <button id="thinkBtn">
+
+                    Let Me Think 🤍
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+
+
+
+
+
+    <!-- ===================== -->
+    <!-- Ending -->
+    <!-- ===================== -->
+
+    <section id="endingSection" class="hidden">
+
+        <div class="glass-card">
+
+            <h1>
+
+                Thank You ❤️
+
+            </h1>
+
+            <p>
+
+                Thank you for giving me another chance.
+
+                <br><br>
+
+                I promise...
+
+                I'll never stop trying
+                to make you smile.
+
+            </p>
+
+            <h2>
+
+                Forever Yours,
+
+                <br>
+
+                Jabed ❤️
+
+            </h2>
+
+            <button id="replayBtn">
+
+                Replay ❤️
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
