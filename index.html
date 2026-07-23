@@ -1,403 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>I'm Sorry, Nusrat ❤️</title>
-
+    <title>When Are We Meeting Again? ❤️</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js">
+    </script>
 </head>
-
 <body>
-
-    <!-- Background -->
-    <div class="background"></div>
-
-    <!-- Rain -->
-    <div id="rain"></div>
-
-    <!-- Floating Hearts -->
-    <div id="hearts"></div>
-
-    <!-- Rose Petals -->
-    <div id="petals"></div>
-
-    <!-- Sparkle Cursor -->
-    <div id="sparkles"></div>
-
-
-
-    <!-- ===================== -->
-    <!-- Welcome Screen -->
-    <!-- ===================== -->
-
-    <section id="welcomeScreen" class="screen">
-
-        <div class="glass-card">
-
-            <h1>Hey Nusrat ❤️</h1>
-
-            <p>
-                I made something for you...
-            </p>
-
-            <button id="startBtn">
-                Open It 🥺
-            </button>
-
-        </div>
-
-    </section>
-
-
-
-
-    <!-- ===================== -->
-    <!-- Popup Container -->
-    <!-- ===================== -->
-
-    <section id="popupSection" class="hidden">
-
-        <div class="mac-window">
-
-            <div class="title-bar">
-
-                <span class="red"></span>
-                <span class="yellow"></span>
-                <span class="green"></span>
-
-                <h3>Message</h3>
-
-            </div>
-
-            <div class="popup-body">
-
-                <h2 id="popupTitle">
-                    Hey Nusrat ❤️
-                </h2>
-
-                <p id="popupText">
-
-                </p>
-
-                <div class="buttons">
-
-                    <button id="yesBtn">
-                        Continue 💕
-                    </button>
-
-                    <button id="noBtn">
-                        No 🙈
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-
-
-    <!-- ===================== -->
-    <!-- Broken Heart -->
-    <!-- ===================== -->
-
-    <section id="brokenHeartSection" class="hidden">
-
-        <div class="glass-card">
-
-            <h1 class="heart">
-                💔
-            </h1>
-
-            <h2>
-                I know I hurt you...
-            </h2>
-
-        </div>
-
-    </section>
-
-
-
-
-
-    <!-- ===================== -->
-    <!-- Heart Repair -->
-    <!-- ===================== -->
-
-    <section id="repairSection" class="hidden">
-
-        <div class="glass-card">
-
-            <h1 class="heart">
-                ❤️‍🩹
-            </h1>
-
-            <h2>
-                I wish I could fix everything...
-            </h2>
-
-        </div>
-
-    </section>
-
-
-
-
-
-
-    <!-- ===================== -->
-    <!-- Loading Hope -->
-    <!-- ===================== -->
-
-    <section id="loadingSection" class="hidden">
-
-        <div class="glass-card">
-
-            <h2>
-
-                Loading Hope...
-
-            </h2>
-
-            <div class="progress">
-
-                <div id="progressBar"></div>
-
-            </div>
-
-            <p id="progressText">
-
-                0%
-
-            </p>
-
-        </div>
-
-    </section>
-
-
-
-
-
-
-    <!-- ===================== -->
-    <!-- Envelope -->
-    <!-- ===================== -->
-
-    <section id="envelopeSection" class="hidden">
-
-        <div class="envelope">
-
-            <div class="letter">
-
-                <h2>
-
-                    Dear Nusrat ❤️
-
-                </h2>
-
-                <div id="letterText">
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-
-
-
-
-    <!-- ===================== -->
-    <!-- Promise Card -->
-    <!-- ===================== -->
-
-    <section id="promiseSection" class="hidden">
-
-        <div class="glass-card">
-
-            <h2>
-
-                My Promise ❤️
-
-            </h2>
-
-            <ul>
-
-                <li>✔ Better Communication</li>
-
-                <li>✔ More Respect</li>
-
-                <li>✔ More Patience</li>
-
-                <li>✔ More Understanding</li>
-
-                <li>✔ More Love</li>
-
-            </ul>
-
-        </div>
-
-    </section>
-
-
-
-
-
-
-
-
-    <!-- ===================== -->
-    <!-- Memory Jar -->
-    <!-- ===================== -->
-
-    <section id="memorySection" class="hidden">
-
-        <div class="glass-card">
-
-            <h2>
-
-                Memory Jar 🫙
-
-            </h2>
-
-            <button class="memory">
-
-                🌸 First Smile
-
-            </button>
-
-            <button class="memory">
-
-                ❤️ First Long Conversation
-
-            </button>
-
-            <button class="memory">
-
-                ☕ Our Favorite Moment
-
-            </button>
-
-            <button class="memory">
-
-                🌹 One More Chance?
-
-            </button>
-
-        </div>
-
-    </section>
-
-
-
-
-
-
-
-    <!-- ===================== -->
-    <!-- Final Question -->
-    <!-- ===================== -->
-
-    <section id="finalQuestion" class="hidden">
-
-        <div class="glass-card">
-
-            <h1>
-
-                Will You Forgive Me?
-
-            </h1>
-
-            <div class="buttons">
-
-                <button id="forgiveBtn">
-
-                    Yes ❤️
-
+    <!-- ==================== BACKGROUND EFFECTS ==================== -->
+    <div class="bg-effects">
+        <div class="floating-hearts" id="floatingHearts"></div>
+        <div class="rose-petals" id="rosePetals"></div>
+        <canvas id="fireworksCanvas" class="fireworks-canvas"></canvas>
+        <div class="confetti-container" id="confettiContainer"></div>
+    </div>
+
+    <!-- ==================== SPARKLE CURSOR TRAIL ==================== -->
+    <div class="sparkle-trail" id="sparkleTrail"></div>
+
+    <!-- ==================== MAIN CONTAINER ==================== -->
+    <div class="main-container" id="mainContainer">
+
+        <!-- ========== SCREEN 1: WELCOME ========== -->
+        <section class="screen screen-welcome active" id="screenWelcome">
+            <div class="glass-card welcome-card">
+                <div class="heart-icon-large">💖</div>
+                <h1 class="welcome-title">Hi Nusrat ❤️</h1>
+                <p class="welcome-text">I've been looking forward to seeing you again.</p>
+                <button class="btn btn-primary btn-romantic" id="btnBegin">
+                    Let's Begin ❤️
                 </button>
-
-                <button id="thinkBtn">
-
-                    Let Me Think 🤍
-
-                </button>
-
             </div>
+        </section>
 
-        </div>
+        <!-- ========== SCREEN 2: TYPEWRITER ========== -->
+        <section class="screen screen-typewriter" id="screenTypewriter">
+            <div class="glass-card typewriter-card">
+                <div class="typewriter-lines" id="typewriterLines">
+                    <p class="typewriter-line line-1"><span class="typed-text" data-text="Life gets busy."></span><span class="cursor-blink">|</span></p>
+                    <p class="typewriter-line line-2"><span class="typed-text" data-text="Schedules change."></span><span class="cursor-blink">|</span></p>
+                    <p class="typewriter-line line-3"><span class="typed-text" data-text="Days pass quickly."></span><span class="cursor-blink">|</span></p>
+                    <p class="typewriter-line line-4"><span class="typed-text" data-text="But..."></span><span class="cursor-blink">|</span></p>
+                    <p class="typewriter-line line-5 highlight-line"><span class="typed-text" data-text="I think it's time to make another beautiful memory together."></span><span class="cursor-blink">|</span></p>
+                </div>
+                <button class="btn btn-primary btn-romantic" id="btnContinue" style="display:none;">
+                    Continue →
+                </button>
+            </div>
+        </section>
 
-    </section>
+        <!-- ========== SCREEN 3: QUESTION - WOULD YOU LIKE TO MEET? ========== -->
+        <section class="screen screen-question" id="screenQuestion">
+            <div class="glass-card question-card" id="questionCard">
+                <h2 class="question-title">Would you like to meet me again?</h2>
+                <div class="question-buttons-container" id="questionButtonsContainer">
+                    <button class="btn btn-yes" id="btnYes">❤️ YES</button>
+                    <button class="btn btn-no" id="btnNo">🤍 NO</button>
+                </div>
+                <p class="funny-message" id="funnyMessage"></p>
+                <div class="shake-indicator" id="shakeIndicator"></div>
+            </div>
+        </section>
 
+        <!-- ========== SCREEN 4: MEETING DATE - CALENDAR ========== -->
+        <section class="screen screen-date" id="screenDate">
+            <div class="glass-card date-card">
+                <h2 class="section-title">📅 Pick a Beautiful Day</h2>
+                <div class="calendar-wrapper" id="calendarWrapper">
+                    <div class="calendar-header">
+                        <button class="cal-nav" id="calPrev">◀</button>
+                        <span class="cal-month-year" id="calMonthYear"></span>
+                        <button class="cal-nav" id="calNext">▶</button>
+                    </div>
+                    <div class="calendar-days-header">
+                        <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid"></div>
+                </div>
+                <p class="selected-date-display" id="selectedDateDisplay">Selected: <span id="selectedDateText">—</span></p>
+                <button class="btn btn-primary btn-romantic" id="btnDateNext" disabled>Continue →</button>
+                <button class="btn btn-back" id="btnDateBack">← Back</button>
+            </div>
+        </section>
 
+        <!-- ========== SCREEN 5: MEETING TIME ========== -->
+        <section class="screen screen-time" id="screenTime">
+            <div class="glass-card time-card">
+                <h2 class="section-title">🕐 What Time Works Best?</h2>
+                <div class="option-grid" id="timeOptions">
+                    <div class="option-card" data-value="Morning" data-hour="9" data-minute="0">🌅 Morning<br><small>~9:00 AM</small></div>
+                    <div class="option-card" data-value="Afternoon" data-hour="14" data-minute="0">☀️ Afternoon<br><small>~2:00 PM</small></div>
+                    <div class="option-card" data-value="Evening" data-hour="18" data-minute="0">🌆 Evening<br><small>~6:00 PM</small></div>
+                    <div class="option-card" data-value="Night" data-hour="20" data-minute="0">🌙 Night<br><small>~8:00 PM</small></div>
+                    <div class="option-card option-custom" data-value="Custom">🕛 Custom Time</div>
+                </div>
+                <div class="custom-input-wrapper" id="customTimeWrapper" style="display:none;">
+                    <input type="time" class="custom-input" id="customTimeInput">
+                </div>
+                <p class="selected-display" id="selectedTimeDisplay">Selected: <span id="selectedTimeText">—</span></p>
+                <button class="btn btn-primary btn-romantic" id="btnTimeNext" disabled>Continue →</button>
+                <button class="btn btn-back" id="btnTimeBack">← Back</button>
+            </div>
+        </section>
 
+        <!-- ========== SCREEN 6: MEETING LOCATION ========== -->
+        <section class="screen screen-location" id="screenLocation">
+            <div class="glass-card location-card">
+                <h2 class="section-title">📍 Where Should We Meet?</h2>
+                <div class="option-grid" id="locationOptions">
+                    <div class="option-card" data-value="Coffee Shop">☕ Coffee Shop</div>
+                    <div class="option-card" data-value="Restaurant">🍽️ Restaurant</div>
+                    <div class="option-card" data-value="University">🎓 University</div>
+                    <div class="option-card" data-value="Park">🌳 Park</div>
+                    <div class="option-card" data-value="Somewhere New">✨ Somewhere New</div>
+                    <div class="option-card option-custom" data-value="Custom">📍 Custom Location</div>
+                </div>
+                <div class="custom-input-wrapper" id="customLocationWrapper" style="display:none;">
+                    <input type="text" class="custom-input" id="customLocationInput" placeholder="Enter a location...">
+                </div>
+                <p class="selected-display" id="selectedLocationDisplay">Selected: <span id="selectedLocationText">—</span></p>
+                <button class="btn btn-primary btn-romantic" id="btnLocationNext" disabled>Continue →</button>
+                <button class="btn btn-back" id="btnLocationBack">← Back</button>
+            </div>
+        </section>
 
+        <!-- ========== SCREEN 7: WHAT DO YOU WANT? ========== -->
+        <section class="screen screen-want" id="screenWant">
+            <div class="glass-card want-card">
+                <h2 class="section-title">🎁 What Do You Want From Me?</h2>
+                <div class="option-grid" id="wantOptions">
+                    <div class="option-card" data-value="Coffee">☕ Coffee</div>
+                    <div class="option-card" data-value="Chocolate">🍫 Chocolate</div>
+                    <div class="option-card" data-value="Flowers">💐 Flowers</div>
+                    <div class="option-card" data-value="Food">🍲 Food</div>
+                    <div class="option-card" data-value="A Surprise">🎀 A Surprise</div>
+                    <div class="option-card" data-value="A Long Conversation">💬 A Long Conversation</div>
+                    <div class="option-card" data-value="Just Your Company">🥰 Just Your Company</div>
+                    <div class="option-card" data-value="Anything Is Fine">👍 Anything Is Fine</div>
+                    <div class="option-card option-custom" data-value="Custom">✏️ Custom Answer</div>
+                </div>
+                <div class="custom-input-wrapper" id="customWantWrapper" style="display:none;">
+                    <input type="text" class="custom-input" id="customWantInput" placeholder="Tell me what you'd like...">
+                </div>
+                <p class="selected-display" id="selectedWantDisplay">Selected: <span id="selectedWantText">—</span></p>
+                <button class="btn btn-primary btn-romantic" id="btnWantNext" disabled>Continue →</button>
+                <button class="btn btn-back" id="btnWantBack">← Back</button>
+            </div>
+        </section>
 
+        <!-- ========== SCREEN 8: WHAT SHOULD I WEAR? ========== -->
+        <section class="screen screen-wear" id="screenWear">
+            <div class="glass-card wear-card">
+                <h2 class="section-title">👔 What Should I Wear?</h2>
+                <div class="option-grid" id="wearOptions">
+                    <div class="option-card" data-value="Casual">👕 Casual</div>
+                    <div class="option-card" data-value="Formal">🤵 Formal</div>
+                    <div class="option-card" data-value="Semi Formal">👔 Semi Formal</div>
+                    <div class="option-card" data-value="Black">🖤 Black</div>
+                    <div class="option-card" data-value="White">🤍 White</div>
+                    <div class="option-card" data-value="Blue">💙 Blue</div>
+                    <div class="option-card" data-value="Anything Looks Good">😎 Anything Looks Good</div>
+                    <div class="option-card option-custom" data-value="Custom">✏️ Custom Suggestion</div>
+                </div>
+                <div class="custom-input-wrapper" id="customWearWrapper" style="display:none;">
+                    <input type="text" class="custom-input" id="customWearInput" placeholder="Your suggestion...">
+                </div>
+                <p class="selected-display" id="selectedWearDisplay">Selected: <span id="selectedWearText">—</span></p>
+                <button class="btn btn-primary btn-romantic" id="btnWearNext" disabled>Continue →</button>
+                <button class="btn btn-back" id="btnWearBack">← Back</button>
+            </div>
+        </section>
 
+        <!-- ========== SCREEN 9: ADDITIONAL NOTE ========== -->
+        <section class="screen screen-note" id="screenNote">
+            <div class="glass-card note-card">
+                <h2 class="section-title">💌 Any Additional Note?</h2>
+                <textarea class="note-textarea" id="noteTextarea" placeholder="Write anything you'd like..." rows="5"></textarea>
+                <p class="char-count" id="charCount">0 / 500</p>
+                <button class="btn btn-primary btn-romantic" id="btnNoteNext">Continue →</button>
+                <button class="btn btn-back" id="btnNoteBack">← Back</button>
+            </div>
+        </section>
 
+        <!-- ========== SCREEN 10: SUMMARY ========== -->
+        <section class="screen screen-summary" id="screenSummary">
+            <div class="glass-card summary-card">
+                <h2 class="section-title">✨ Summary</h2>
+                <div class="summary-details" id="summaryDetails">
+                    <div class="summary-row"><span class="summary-label">📅 Date:</span><span id="sumDate">—</span></div>
+                    <div class="summary-row"><span class="summary-label">🕐 Time:</span><span id="sumTime">—</span></div>
+                    <div class="summary-row"><span class="summary-label">📍 Location:</span><span id="sumLocation">—</span></div>
+                    <div class="summary-row"><span class="summary-label">🎁 You Want:</span><span id="sumWant">—</span></div>
+                    <div class="summary-row"><span class="summary-label">👔 I Should Wear:</span><span id="sumWear">—</span></div>
+                    <div class="summary-row"><span class="summary-label">💌 Note:</span><span id="sumNote">—</span></div>
+                </div>
+                <div class="summary-buttons">
+                    <button class="btn btn-back" id="btnEdit">✏️ Edit</button>
+                    <button class="btn btn-primary btn-romantic btn-confirm" id="btnConfirm">Confirm ❤️</button>
+                </div>
+            </div>
+        </section>
 
-    <!-- ===================== -->
-    <!-- Ending -->
-    <!-- ===================== -->
+        <!-- ========== SCREEN 11: SUCCESS ========== -->
+        <section class="screen screen-success" id="screenSuccess">
+            <div class="glass-card success-card" id="successCard">
+                <!-- Envelope Animation -->
+                <div class="envelope-animation" id="envelopeAnim">
+                    <div class="envelope">
+                        <div class="envelope-flap"></div>
+                        <div class="envelope-body">✉️</div>
+                    </div>
+                    <div class="paper-plane" id="paperPlane">✈️</div>
+                </div>
+                <!-- Success Content (hidden initially) -->
+                <div class="success-content" id="successContent" style="display:none;">
+                    <div class="success-icon">💖</div>
+                    <h2 class="success-title">Perfect ❤️</h2>
+                    <p class="success-message">Now I have something to look forward to.</p>
+                    <div class="countdown-wrapper" id="countdownWrapper">
+                        <p class="countdown-label">⏳ Time until we meet:</p>
+                        <div class="countdown-timer" id="countdownTimer">
+                            <div class="countdown-unit"><span id="cdDays">00</span><small>Days</small></div>
+                            <div class="countdown-sep">:</div>
+                            <div class="countdown-unit"><span id="cdHours">00</span><small>Hours</small></div>
+                            <div class="countdown-sep">:</div>
+                            <div class="countdown-unit"><span id="cdMinutes">00</span><small>Minutes</small></div>
+                            <div class="countdown-sep">:</div>
+                            <div class="countdown-unit"><span id="cdSeconds">00</span><small>Seconds</small></div>
+                        </div>
+                    </div>
+                    <p class="success-subtext">Can't wait to see you! 🥰</p>
+                </div>
+                <!-- Loading indicator -->
+                <div class="sending-indicator" id="sendingIndicator" style="display:none;">
+                    <div class="spinner"></div>
+                    <p>Sending your response...</p>
+                </div>
+            </div>
+        </section>
 
-    <section id="endingSection" class="hidden">
+        <!-- ========== TOAST / FUNNY MESSAGE POPUP ========== -->
+        <div class="toast-popup" id="toastPopup"></div>
+    </div>
 
-        <div class="glass-card">
-
-            <h1>
-
-                Thank You ❤️
-
-            </h1>
-
-            <p>
-
-                Thank you for giving me another chance.
-
-                <br><br>
-
-                I promise...
-
-                I'll never stop trying
-                to make you smile.
-
-            </p>
-
-            <h2>
-
-                Forever Yours,
-
-                <br>
-
-                Jabed ❤️
-
-            </h2>
-
-            <button id="replayBtn">
-
-                Replay ❤️
-
-            </button>
-
-        </div>
-
-    </section>
-
-
-
+    <!-- ==================== SCRIPTS ==================== -->
     <script src="script.js"></script>
-
 </body>
-
 </html>
